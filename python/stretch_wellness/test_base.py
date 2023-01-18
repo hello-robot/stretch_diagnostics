@@ -5,7 +5,7 @@ import yaml
 from colorama import Fore, Style
 
 class TestBase():
-    def __init__(self, test_name, test_type=None):
+    def __init__(self, test_name):
         print(Style.BRIGHT + '{}'.format(test_name))
         print('=' * len(test_name) + Style.RESET_ALL)
 
@@ -18,7 +18,7 @@ class TestBase():
         os.system('mkdir -p %s' % results_directory)
         self.results_directory = results_directory
         self.results_directory_test_specific = self.results_directory + '/' + test_name
-
+        self.hints=[]
         self.params_dict = {}
         self.data_dict = {}
         self.test_status = {}
@@ -27,8 +27,12 @@ class TestBase():
                                  'test_status': None,
                                  'data': None,
                                  'FAILS': None,
-                                 'ERRORS': None}
+                                 'ERRORS': None,
+                                 'hints':None}
         self.check_test_results_directories()
+
+    def add_hint(self,hint):
+        self.hints.append(hint)
 
     def check_test_results_directories(self):
         # self.update_production_repo()
@@ -89,7 +93,8 @@ class TestBase():
             print('All Test Cases passed')
             self.save_test_result(test_status={'status': 'SUCCESS',
                                                'errors': len(errors),
-                                               'failures': len(failures)})
+                                               'failures': len(failures),
+                                               'hints': None})
             print(Style.RESET_ALL)
         else:
             print(Fore.RED)
@@ -98,7 +103,8 @@ class TestBase():
             self.log_fails(failures)
             self.save_test_result(test_status={'status': 'FAIL',
                                                'errors': len(errors),
-                                               'failures': len(failures)})
+                                               'failures': len(failures),
+                                                'hints':self.hints})
             print(Style.RESET_ALL)
 
     def move_misc_file(self, file_key, filename):

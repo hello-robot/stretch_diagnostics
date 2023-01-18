@@ -8,6 +8,6 @@ class TestSuite(unittest.TestSuite):
         self.failfast = failfast
 
     def include_test(self, test):
-        self.health_test = test
-        if not self.health_test:
+        self.test = test
+        if not self.test:
             print(Fore.YELLOW + 'Creating Test Suite Without Test' + Style.RESET_ALL)

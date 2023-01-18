@@ -2,6 +2,7 @@ from colorama import Fore, Style
 import os
 import glob
 import pyrealsense2 as rs
+import stretch_factory.hello_device_utils as hdu
 
 def val_in_range(val_name, val, vmin, vmax):
     p = val <= vmax and val >= vmin

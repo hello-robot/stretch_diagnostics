@@ -42,8 +42,8 @@ class TestRunner(unittest.TextTestRunner):
                 return
         result = super(TestRunner, self).run(self.suite)
         # result = super().run(self.suite)
-        if self.suite.health_test:
-            self.suite.health_test.save_TestResult(result)
+        if self.suite.test:
+            self.suite.test.save_TestResult(result)
         else:
             print(
                 Fore.YELLOW + '[WARNING]: Result Data not saved because Test Object was not included with Test Suite.')

@@ -24,9 +24,8 @@ class TestManager():
         self.fleet_id = os.environ['HELLO_FLEET_ID']
 
         results_directory =os.environ['HELLO_FLEET_PATH']+'/log/wellness_check'
-        self.model_name='re2'
         self.test_timestamp = hu.create_time_string()
-        self.tests_order = test_order[self.model_name][test_type]
+        self.tests_order = test_order[test_type]
         self.WellnessCheck_filename = 'wellness_check_{}.yaml'.format(self.test_timestamp)
         self.results_directory = results_directory
         self.system_health_dict = {'total_tests': 0,
@@ -34,7 +33,6 @@ class TestManager():
                                    'all_success': False,
                                    'check_timestamp': self.test_timestamp,
                                    'robot_name': self.fleet_id,
-                                   'model_name': self.model_name,
                                    'tests': None
                                    }
         self.disable_print_warning = False
@@ -178,7 +176,9 @@ class TestManager():
             if not result:
                 click.secho('[%d] %s: Test result: N/A' % (i, test_name), fg="yellow")
             elif result['test_status']['status'] != 'SUCCESS':
-                click.secho('[%d] %s: Test result: FAIL' % (i, test_name), fg="red")
+                click.secho('[%d] %s: Test result: FAIL' % (i, test_name,), fg="red")
+                for h in result['test_status']['hints']:
+                    click.secho('\t\tHINT: %s' % h,fg="red")
             else:
                 click.secho('[%d] %s: Test result: PASS' % (i, test_name), fg="green")
             i = i + 1
