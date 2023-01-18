@@ -2,81 +2,41 @@
 
 import os
 import sys
-import argparse
-import time
 
 import yaml
-from stretch_production_tools.test_order import test_order
-from io import StringIO
+from stretch_system_health.test_order import test_order
 from colorama import Fore, Style
 import importlib
-from stretch_production_tools.production_test_utils import push_production_data
-from stretch_production_tools.helpers import confirm
+from stretch_system_health.test_helpers import confirm
 import stretch_body.hello_utils as hu
-from stretch_production_tools.production_test_utils import Production_TestRunner
-from stretch_production_tools.production_test_utils import command_list_exec
+from stretch_system_health.test_utils import HealthTestRunner
+from stretch_system_health.test_helpers import command_list_exec
 import click
 import glob
-from stretch_production_tools.production_test_utils import get_user_metadata
-from stretch_production_tools.helpers import get_robot_sn
 
 
-class ProductionTestManager():
-    def __init__(self, test_type='bringup', get_fleet_id=False, test_filter=None):
+class HealthTestManager():
+    def __init__(self, test_type):
         self.next_test_ready = False
         self.test_type = test_type
-        sys.path.append(os.path.expanduser('~/repos/stretch_production_tools/python/%s_tests' % test_type))
-
-        if test_type == 'bringup':
-            self.batch_name = hu.read_fleet_yaml('stretch_configuration_params.yaml')['robot']['batch_name'].lower()
-        else:
-            self.batch_name = os.environ['HELLO_PRODUCTION_TOOLS_BATCH_NAME'].lower()
-
+        sys.path.append(os.path.expanduser('~/repos/stretch_system_health/python/%s_tests' % test_type))
 
         # Get Fleet ID
-        if get_fleet_id:
-            self.fleet_id = get_robot_sn(self.batch_name)
-            os.environ['HELLO_FLEET_ID'] = self.fleet_id
-        else:
-            self.fleet_id = os.environ['HELLO_FLEET_ID']
+        self.fleet_id = os.environ['HELLO_FLEET_ID']
 
-        self.production_repo = os.path.expanduser('~/repos/stretch_production_data')
-        results_directory = None
-        # Set up Results Directory
-        if test_type == 'rdk':
-            results_directory = os.path.expanduser(
-                self.production_repo + '/rdk/' + self.batch_name)
-        if test_type == 'eol':
-            results_directory = os.path.expanduser(self.production_repo + '/robots/' + self.fleet_id)
-        if results_directory is None:
-            results_directory = os.path.expanduser(
-                self.production_repo + '/robots/' + self.fleet_id)  # Default test type is 'bringup' which stores results robot specific
-
+        results_directory =os.environ['HELLO_FLEET_PATH']+'/log/system_health'
+        self.model_name='re2'
         self.test_timestamp = hu.create_time_string()
-        try:
-            self.production_tests_order = test_order[self.batch_name][test_type]
-        except KeyError:
-            self.production_tests_order = test_order['re1'][test_type]
-
-        # Filter the tests according to test_filter (eg, EOL_arm)
-        if test_filter is not None:
-            f = []
-            for t in self.production_tests_order:
-                if t.find(test_filter) != -1:
-                    f.append(t)
-            self.production_tests_order = f
-
+        self.health_tests_order = test_order[self.model_name][test_type]
         self.SystemHealthCheck_filename = 'system_health_check_{}.yaml'.format(self.test_timestamp)
         self.results_directory = results_directory
-        self.user_metadata = get_user_metadata()
         self.system_health_dict = {'total_tests': 0,
                                    'total_tests_failed': 0,
                                    'all_success': False,
                                    'check_timestamp': self.test_timestamp,
                                    'robot_name': self.fleet_id,
-                                   'batch_name': self.batch_name,
-                                   'tests': None,
-                                   'user_info': self.user_metadata
+                                   'model_name': self.model_name,
+                                   'tests': None
                                    }
         self.disable_print_warning = False
         self.disable_print_error = False
@@ -100,7 +60,7 @@ class ProductionTestManager():
     def run_test(self, test_name):
         try:
             test_suite = self.get_TestSuite(test_name)
-            runner = Production_TestRunner(test_suite, False)
+            runner = HealthTestRunner(test_suite, False)
             runner.run()
             result = self.read_latest_test_result(test_name)
             del sys.modules[test_name]
@@ -130,13 +90,13 @@ class ProductionTestManager():
                 self.run_test(choice)
                 print('\n\n')
             i = i + 1
-            if i == len(self.production_tests_order) or i > len(self.production_tests_order):
+            if i == len(self.health_tests_order) or i > len(self.health_tests_order):
                 end = True
             print('---------------------------------------------------------\n')
         self.generate_last_system_health_report()
 
     def archive_all_tests_status(self):
-        for test_name in self.production_tests_order:
+        for test_name in self.health_tests_order:
             self.archive_test_status(test_name)
 
     def archive_test_status(self, test_name):
@@ -167,14 +127,14 @@ class ProductionTestManager():
                 elif len(r.split(' ')) == 2:
                     if r[0] == 'r' and r[1] == ' ':
                         tn = r.split(' ')[-1]
-                        t_name = self.production_tests_order[int(tn)]
+                        t_name = self.health_tests_order[int(tn)]
                         self.archive_test_status(t_name)
                         print('Resetting {}'.format(t_name))
                         print('---------------------------------------')
                 else:
                     n = int(r)
-                    if n >= 0 and n < len(self.production_tests_order):
-                        test_name = self.production_tests_order[n]
+                    if n >= 0 and n < len(self.health_tests_order):
+                        test_name = self.health_tests_order[n]
                         print('Running test: %s' % test_name)
                         print('')
                         self.run_test(test_name)
@@ -188,20 +148,20 @@ class ProductionTestManager():
         print('---------------------------------------------------------\n')
         print(Style.BRIGHT + 'Choose an action from the list:')
         print(
-            '[0]  RUN TEST = [{}. {}]'.format(test_i + 1, Fore.CYAN + self.production_tests_order[test_i] + Fore.RESET))
+            '[0]  RUN TEST = [{}. {}]'.format(test_i + 1, Fore.CYAN + self.health_tests_order[test_i] + Fore.RESET))
         if not test_i == 0:
-            print('[1]  RE-RUN PREVIOUS TEST = [{}. {}]'.format(test_i, self.production_tests_order[test_i - 1]))
-        print('[2]  ABORT PRODUCTION TEST' + Style.RESET_ALL)
+            print('[1]  RE-RUN PREVIOUS TEST = [{}. {}]'.format(test_i, self.health_tests_order[test_i - 1]))
+        print('[2]  ABORT HEALTH TEST' + Style.RESET_ALL)
         choice = input('Enter the Choice:\n')
         if choice == '0':
-            return self.production_tests_order[test_i], test_i
+            return self.health_tests_order[test_i], test_i
         elif choice == '1':
             if not test_i == 0:
-                return self.production_tests_order[test_i - 1], test_i - 1
+                return self.health_tests_order[test_i - 1], test_i - 1
             else:
                 return self.print_run_all_choices(test_i)
         elif choice == '2':
-            print('ABORTING PRODUCTION TEST.....')
+            print('ABORTING HEALTH TEST.....')
             sys.exit()
         else:
             return self.print_run_all_choices(test_i)
@@ -210,7 +170,7 @@ class ProductionTestManager():
         self.disable_print_warning = True
         self.disable_print_error = True
         i = 0
-        for test_name in self.production_tests_order:
+        for test_name in self.health_tests_order:
             result = self.read_latest_test_result(test_name)
             if not result:
                 click.secho('[%d] %s: Test result: N/A' % (i, test_name), fg="yellow")
@@ -225,10 +185,10 @@ class ProductionTestManager():
     def generate_last_system_health_report(self):
         tests_results_collection = []
         total_fail = 0
-        total_tests = len(self.production_tests_order)
+        total_tests = len(self.health_tests_order)
         total_tests_ran = 0
         all_success = True
-        for test_name in self.production_tests_order:
+        for test_name in self.health_tests_order:
             result = self.read_latest_test_result(test_name)
             if (result):
                 result_status = result['test_status']
@@ -263,13 +223,13 @@ class ProductionTestManager():
 
         return self.system_health_dict
 
-    def list_ordered_production_tests(self, verbosity=1):
+    def list_ordered_health_tests(self, verbosity=1):
         all_tests_dict = {}
-        txt = "Printing Orderded Production TestSuites  for %s and it's included Sub-TestCases" % self.test_type.upper()
+        txt = "Printing Orderded HEALTH TestSuites  for %s and it's included Sub-TestCases" % self.test_type.upper()
         print(txt)
         print('-' * len(txt) + '\n')
-        for i in range(len(self.production_tests_order)):
-            test_name = self.production_tests_order[i]
+        for i in range(len(self.health_tests_order)):
+            test_name = self.health_tests_order[i]
             all_tests_dict[test_name] = {}
             test_suite = self.get_TestSuite(test_name)
             if test_suite:
@@ -301,7 +261,7 @@ class ProductionTestManager():
                                 self.print_warning('Short Description not provided.', 7)
 
         all_test_list_ordereded = []
-        for test_name in self.production_tests_order:
+        for test_name in self.health_tests_order:
             all_test_list_ordereded.append({test_name: all_tests_dict[test_name]})
 
         return all_test_list_ordereded
