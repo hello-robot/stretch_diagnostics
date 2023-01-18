@@ -4,18 +4,17 @@ import os
 import sys
 
 import yaml
-from stretch_system_health.test_order import test_order
+from stretch_wellness.test_order import test_order
 from colorama import Fore, Style
 import importlib
-from stretch_system_health.test_helpers import confirm
+from stretch_wellness.test_helpers import confirm
 import stretch_body.hello_utils as hu
-from stretch_system_health.test_utils import HealthTestRunner
-from stretch_system_health.test_helpers import command_list_exec
+from stretch_wellness.test_runner import TestRunner
+from stretch_wellness.test_helpers import command_list_exec
 import click
 import glob
 
-
-class HealthTestManager():
+class TestManager():
     def __init__(self, test_type):
         self.next_test_ready = False
         self.test_type = test_type
@@ -28,7 +27,7 @@ class HealthTestManager():
         self.model_name='re2'
         self.test_timestamp = hu.create_time_string()
         self.health_tests_order = test_order[self.model_name][test_type]
-        self.SystemHealthCheck_filename = 'system_health_check_{}.yaml'.format(self.test_timestamp)
+        self.WellnessCheck_filename = 'system_health_check_{}.yaml'.format(self.test_timestamp)
         self.results_directory = results_directory
         self.system_health_dict = {'total_tests': 0,
                                    'total_tests_failed': 0,
@@ -60,7 +59,7 @@ class HealthTestManager():
     def run_test(self, test_name):
         try:
             test_suite = self.get_TestSuite(test_name)
-            runner = HealthTestRunner(test_suite, False)
+            runner = TestRunner(test_suite, False)
             runner.run()
             result = self.read_latest_test_result(test_name)
             del sys.modules[test_name]
@@ -210,7 +209,7 @@ class HealthTestManager():
         else:
             print(Fore.YELLOW)
 
-        with open(self.results_directory + '/' + self.SystemHealthCheck_filename, 'w') as file:
+        with open(self.results_directory + '/' + self.WellnessCheck_filename, 'w') as file:
             documents = yaml.dump(self.system_health_dict, file)
 
         print('\n\n')
@@ -219,11 +218,11 @@ class HealthTestManager():
         print(yaml.dump(self.system_health_dict))
         print('\nReported {} Fails.'.format(total_fail))
         print(Style.RESET_ALL)
-        print('System Check Saved to : {}'.format(self.results_directory + '/' + self.SystemHealthCheck_filename))
+        print('System Check Saved to : {}'.format(self.results_directory + '/' + self.WellnessCheck_filename))
 
         return self.system_health_dict
 
-    def list_ordered_health_tests(self, verbosity=1):
+    def list_ordered_tests(self, verbosity=1):
         all_tests_dict = {}
         txt = "Printing Orderded HEALTH TestSuites  for %s and it's included Sub-TestCases" % self.test_type.upper()
         print(txt)

@@ -4,7 +4,7 @@ import stretch_body.hello_utils as hu
 import yaml
 from colorama import Fore, Style
 
-class Health_Test():
+class Test_Base():
     def __init__(self, test_name, test_type=None):
         print(Style.BRIGHT + '{}'.format(test_name))
         print('=' * len(test_name) + Style.RESET_ALL)
@@ -13,7 +13,7 @@ class Health_Test():
         self.test_name = test_name
         self.fleet_id = os.environ['HELLO_FLEET_ID']
 
-        results_directory =os.environ['HELLO_FLEET_PATH']+'/log/system_health'#+self.timestamp
+        results_directory =os.environ['HELLO_FLEET_PATH']+'/log/wellness_check'#+self.timestamp
 
         os.system('mkdir -p %s' % results_directory)
         self.results_directory = results_directory
@@ -107,95 +107,4 @@ class Health_Test():
         filename_ts = ff[0] + '_' + self.timestamp + '.' + ff[-1]
         os.system('mv {} {}/{}/{}'.format(filename, self.results_directory, self.test_name, filename_ts))
         self.log_data(file_key, filename_ts)
-
-
-class Health_TestResult(unittest.runner.TextTestResult):
-    def startTest(self, test):
-        super(Health_TestResult, self).startTest(test)
-        print('\n')
-        test_id = test.id().split('.')[-1]
-        print(test_id)
-        print('-' * len(test_id))
-        if test.shortDescription():
-            print('Description:\n' + test.shortDescription() + '\n')
-        else:
-            print(Fore.YELLOW + "[WARNING]: Description Missing for test: {}".format(test_id) + Style.RESET_ALL)
-
-    def stopTest(self, test):
-        super(Health_TestResult, self).stopTest(test)
-        result = test.defaultTestResult()
-        test._feedErrorsToResult(result, test._outcome.errors)
-        ok = result.wasSuccessful()
-        errors = result.errors
-        failures = result.failures
-
-        if ok:
-            print(Fore.GREEN)
-            print('Test Case passed')
-            print(Style.RESET_ALL)
-        else:
-            print(Fore.RED)
-            print('Test Case Failed')
-            print('{} errors and {} failures'.format(len(errors), len(failures)))
-            print(Style.RESET_ALL)
-
-
-class Health_TestSuite(unittest.TestSuite):
-    def __init__(self, test=None, failfast=False):
-        super().__init__(self)
-        self.include_test(test)
-        self.failfast = failfast
-
-    def include_test(self, test):
-        self.health_test = test
-        if not self.health_test:
-            print(Fore.YELLOW + 'Creating Test Suite Without Test' + Style.RESET_ALL)
-
-
-class Health_TestRunner(unittest.TextTestRunner):
-    resultclass = Health_TestResult
-
-    def __init__(self, suite, doc_verify_fail=False):
-        super(Health_TestRunner, self).__init__()
-        self.failfast = suite.failfast
-        self.suite = suite
-        self.doc_verify_fail = doc_verify_fail
-
-    def _suite_verify_doc_fail(self):
-        doc_check_fail = False
-        if len(self.suite._tests) == 0:
-            print(Fore.YELLOW + '[SYSTEM CHECK ERROR]: A test suite must have at least one test\n' + Style.RESET_ALL)
-            doc_check_fail = True
-
-        if len(self.suite._tests):
-            class_doc = self.suite._tests[0].__doc__
-            if class_doc is None:
-                print(
-                    Fore.YELLOW + '[SYSTEM CHECK ERROR]: A test case must have a class-level docstring' + Style.RESET_ALL)
-                doc_check_fail = True
-
-            for t in self.suite._tests:
-                if not t.shortDescription():
-                    print(Fore.YELLOW + '[SYSTEM CHECK ERROR]: Short Description not provided for test : {}'.format(
-                        t.id()) + Style.RESET_ALL)
-                    doc_check_fail = True
-
-        return doc_check_fail
-
-    def run(self):
-        if self.doc_verify_fail:
-            if self._suite_verify_doc_fail():
-                print(Fore.RED + 'Stopping Test Run' + Style.RESET_ALL)
-                return
-        result = super(Health_TestRunner, self).run(self.suite)
-        # result = super().run(self.suite)
-        if self.suite.health_test:
-            self.suite.health_test.save_TestResult(result)
-        else:
-            print(
-                Fore.YELLOW + '[WARNING]: Result Data not saved because HealthTest Object was not included with Test Suite.')
-            print(
-                'Add health_test object while initializing  "test_suite = Health_TestSuite(Test_XXX_foo.health_test)" ' + Style.RESET_ALL)
-        return result
-
 
