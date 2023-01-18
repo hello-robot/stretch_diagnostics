@@ -4,7 +4,7 @@ import stretch_body.hello_utils as hu
 import yaml
 from colorama import Fore, Style
 
-class Test_Base():
+class TestBase():
     def __init__(self, test_name, test_type=None):
         print(Style.BRIGHT + '{}'.format(test_name))
         print('=' * len(test_name) + Style.RESET_ALL)

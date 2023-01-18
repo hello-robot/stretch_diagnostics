@@ -3,9 +3,10 @@ import os
 import stretch_body.hello_utils as hu
 import yaml
 from colorama import Fore, Style
-from stretch_wellness.test_runner import TestRunner
+from stretch_wellness.test_result import TestResult
+
 class TestRunner(unittest.TextTestRunner):
-    resultclass = TestRunner
+    resultclass = TestResult
 
     def __init__(self, suite, doc_verify_fail=False):
         super(TestRunner, self).__init__()
