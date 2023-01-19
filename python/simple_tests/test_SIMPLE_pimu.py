@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
-from stretch_wellness.test_helpers import val_in_range
-from stretch_wellness.test_base import TestBase
-from stretch_wellness.test_runner import TestRunner
-from stretch_wellness.test_suite import TestSuite
+from stretch_diagnostics.test_helpers import val_in_range
+from stretch_diagnostics.test_base import TestBase
+from stretch_diagnostics.test_runner import TestRunner
+from stretch_diagnostics.test_suite import TestSuite
 import unittest
 import stretch_factory.hello_device_utils as hdu
 import stretch_body.pimu

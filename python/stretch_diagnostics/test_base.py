@@ -13,7 +13,7 @@ class TestBase():
         self.test_name = test_name
         self.fleet_id = os.environ['HELLO_FLEET_ID']
 
-        results_directory =os.environ['HELLO_FLEET_PATH']+'/log/wellness_check'#+self.timestamp
+        results_directory =os.environ['HELLO_FLEET_PATH']+'/log/diagnostic_check'#+self.timestamp
 
         os.system('mkdir -p %s' % results_directory)
         self.results_directory = results_directory

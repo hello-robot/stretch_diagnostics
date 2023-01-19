@@ -3,19 +3,23 @@
 import sys
 import argparse
 import stretch_body.hello_utils as hu
-from stretch_wellness.test_manager import TestManager
-from stretch_wellness.test_order import test_order
+from stretch_diagnostics.test_manager import TestManager
+from stretch_diagnostics.test_order import test_order
 from colorama import Style
 
 
 hu.print_stretch_re_use()
 
-parser = argparse.ArgumentParser(description='Script to run Wellness Test Suite and generate reports.', )
-parser.add_argument("--report", help="Report the latest wellness check", action="store_true")
-parser.add_argument("--simple", help="Run test suite: SIMPLE", action="store_true")
-parser.add_argument("--pcba", help="Run test suite: PCBA", action="store_true")
-parser.add_argument("--all", help="Run all test suites", action="store_true")
-parser.add_argument("--zip", help="Generate zip file of latest wellness check", action="store_true")
+parser = argparse.ArgumentParser(description='Script to run Diagnostic Test Suite and generate reports.', )
+parser.add_argument("--report", help="Report the latest diagnostic check", action="store_true")
+parser.add_argument("--simple", help="Run simple diagnostics across entire robot", action="store_true")
+parser.add_argument("--power", help="Run diagnostics on the power subsystem", action="store_true")
+parser.add_argument("--realsense", help="Run diagnostics on the Intel RealSense D435 camera", action="store_true")
+parser.add_argument("--steppers", help="Run diagnostics on all stepper drivers", action="store_true")
+parser.add_argument("--firmware", help="Run diagnostics on robot firmware versions", action="store_true")
+parser.add_argument("--dynamixel", help="Run diagnostics on all robot Dynamixel servos", action="store_true")
+parser.add_argument("--all", help="Run all diagnostics", action="store_true")
+parser.add_argument("--zip", help="Generate zip file of latest diagnostic check", action="store_true")
 args = parser.parse_args()
 
 def print_report(suite_names=None):
@@ -32,7 +36,7 @@ if args.zip:
     zip_file=None
     for t in test_order.keys():
         mgmt = TestManager(test_type=t)
-        mgmt.generate_last_wellness_report(silent=True)
+        mgmt.generate_last_diagnostic_report(silent=True)
         zip_file=mgmt.generate_latest_zip_file(zip_file=zip_file)
     print('\n----------- Complete -------------')
     print('Zip file available at: %s'%zip_file)
@@ -40,7 +44,7 @@ if args.zip:
 if args.report:
     print(Style.BRIGHT + '############################## SUMMARY ###############################\n')
     # mgmt = TestManager(test_type='simple')
-    # mgmt.generate_last_wellness_report()
+    # mgmt.generate_last_diagnostic_report()
     print_report()
 
 if args.all:
@@ -50,10 +54,6 @@ if args.all:
 
 if args.simple:
     mgmt = TestManager(test_type='simple')
-    mgmt.run_suite()
-
-if args.pcba:
-    mgmt = TestManager(test_type='pcba')
     mgmt.run_suite()
 
 if not len(sys.argv) > 1:

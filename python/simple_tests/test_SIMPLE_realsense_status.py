@@ -3,10 +3,10 @@
 import unittest
 import yaml
 import os, fnmatch
-from stretch_wellness.test_base import TestBase
-from stretch_wellness.test_runner import TestRunner
-from stretch_wellness.test_suite import TestSuite
-from stretch_wellness.test_helpers import get_rs_details
+from stretch_diagnostics.test_base import TestBase
+from stretch_diagnostics.test_runner import TestRunner
+from stretch_diagnostics.test_suite import TestSuite
+from stretch_diagnostics.test_helpers import get_rs_details
 import unittest
 import subprocess
 

@@ -10,16 +10,16 @@ for script_path in script_paths:
 
 
 setuptools.setup(
-    name="hello_robot_stretch_wellness",
+    name="hello_robot_stretch_diagnostics",
     version="0.0.1",
     author="Hello Robot Inc.",
     author_email="support@hello-robot.com",
-    description="Stretch Wellness",
-    long_description="Stretch Wellness",
+    description="Stretch Diagnostics",
+    long_description="Stretch Diagnostics",
     long_description_content_type="text/markdown",
-    url="https://github.com/hello-robot/stretch_wellness",
+    url="https://github.com/hello-robot/diagnostics",
     scripts = scripts,
-    packages=['stretch_wellness'],
+    packages=['stretch_diagnostics'],
     classifiers=[
         "Programming Language :: Python :: 3",
         "Operating System :: OS Independent",

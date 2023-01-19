@@ -3,7 +3,7 @@ import os
 import stretch_body.hello_utils as hu
 import yaml
 from colorama import Fore, Style
-from stretch_wellness.test_result import TestResult
+from stretch_diagnostics.test_result import TestResult
 
 class TestRunner(unittest.TextTestRunner):
     resultclass = TestResult
