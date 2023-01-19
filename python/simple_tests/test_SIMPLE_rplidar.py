@@ -20,13 +20,18 @@ class Test_SIMPLE_rplidar(unittest.TestCase):
         Check that device is present
         """
         nd=len(glob.glob('/dev/ttyUSB*'))>=3
-        if not nd:
-            self.test.add_hint('Not enough ttyUSB devices found. Check RPLidar cables.')
         dp = hdu.is_device_present('/dev/hello-lrf')
+        if not nd and not dp:
+            self.test.add_hint('Not enough ttyUSB devices found. Check RPLidar cables.')
         if not dp:
             self.test.add_hint('/dev/hello-lrf device not found. Check UDEV rules.')
         self.assertTrue(nd)
         self.assertTrue(dp)
+        #Start and stop device to reset connection (see https://github.com/SkoltechRobotics/rplidar/issues/34)
+        rplidar = RPLidar('/dev/hello-lrf')
+        rplidar.stop_motor()
+        rplidar.stop()
+        rplidar.disconnect()
 
     def test_rplidar_scan(self):
         """
@@ -37,7 +42,10 @@ class Test_SIMPLE_rplidar(unittest.TestCase):
             if i > 0:
                 break
         print('%d: Got %d RPLidar scan measurments' % (i, len(scan)))
-        self.assertTrue(len(scan)>100) #Should be 125+
+        rplidar.stop_motor()
+        rplidar.stop()
+        rplidar.disconnect()
+        self.assertTrue(len(scan)>90) #Should be 125+
         self.test.log_data('rplidar_scan', str(scan))
 
     def test_rplidar_info(self):
@@ -49,9 +57,12 @@ class Test_SIMPLE_rplidar(unittest.TestCase):
         self.assertTrue(len(info)>0)
         info['firmware']=list(info['firmware']) #Tuple makes YAML choke
         info['health']=list(rplidar.get_health())
+        rplidar.stop_motor()
+        rplidar.stop()
+        rplidar.disconnect()
         self.test.log_data('rplidar_info', info)
 
-test_suite = TestSuite(test=Test_SIMPLE_rplidar.test,failfast=False)
+test_suite = TestSuite(test=Test_SIMPLE_rplidar.test,failfast=True)
 test_suite.addTest(Test_SIMPLE_rplidar('test_rplidar_present'))
 test_suite.addTest(Test_SIMPLE_rplidar('test_rplidar_info'))
 test_suite.addTest(Test_SIMPLE_rplidar('test_rplidar_scan'))

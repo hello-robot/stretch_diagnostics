@@ -13,7 +13,7 @@ class Test_SIMPLE_pimu(unittest.TestCase):
     Test USB Devices on Bus
     """
     test = TestBase('test_SIMPLE_pimu')
-    test.add_hint('Possible issue with PIMU at hardware / drive level')
+    test.add_hint('Possible issue with PIMU at udev / hardware / driver level')
 
     def test_pimu_present(self):
         """

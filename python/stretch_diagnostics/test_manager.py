@@ -133,24 +133,16 @@ class TestManager():
             self.print_status_report()
             print(Style.BRIGHT + '############### MENU ################' + Style.RESET_ALL)
             print('Enter test # to run (q to quit)')
-            print('R: reset all')
-            print('r: reset test #')
+            print('A: archive tests')
             print('---------------------------------------')
             try:
                 r = input()
                 if r == 'q' or r == 'Q':
                     return
-                elif r == 'R':
+                elif r == 'A':
                     self.archive_all_tests_status()
                     print('Resetting All Tests')
                     print('---------------------------------------')
-                elif len(r.split(' ')) == 2:
-                    if r[0] == 'r' and r[1] == ' ':
-                        tn = r.split(' ')[-1]
-                        t_name = self.tests_order[int(tn)]
-                        self.archive_test_status(t_name)
-                        print('Resetting {}'.format(t_name))
-                        print('---------------------------------------')
                 else:
                     n = int(r)
                     if n >= 0 and n < len(self.tests_order):

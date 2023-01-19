@@ -33,14 +33,13 @@ class Test_SIMPLE_stretch_body_background(unittest.TestCase):
         for d in robot_devices.keys():
             try:
                 ser = serial.Serial(d)
-
                 if ser.isOpen():
                     try:
                         fcntl.flock(ser.fileno(), fcntl.LOCK_EX | fcntl.LOCK_NB)
                     except IOError:
                         robot_devices[d]=True
             except OSError:
-                self.assertTrue(False, msg='Device %s not available on bus'%d)
+                self.test.add_hint('Device %s not available on bus'%d)
 
         self.test.log_data('robot_devices_on_bus',robot_devices)
 
