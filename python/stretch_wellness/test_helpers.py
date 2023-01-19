@@ -4,8 +4,10 @@ import glob
 import pyrealsense2 as rs
 import stretch_factory.hello_device_utils as hdu
 
-def val_in_range(val_name, val, vmin, vmax):
+def val_in_range(val_name, val, vmin, vmax,silent=False):
     p = val <= vmax and val >= vmin
+    if silent:
+        return p
     if p:
         print(Fore.GREEN + '[Pass] ' + val_name + ' = ' + str(val))
         print(Style.RESET_ALL)

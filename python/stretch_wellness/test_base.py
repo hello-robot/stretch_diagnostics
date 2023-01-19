@@ -27,8 +27,7 @@ class TestBase():
                                  'test_status': None,
                                  'data': None,
                                  'FAILS': None,
-                                 'ERRORS': None,
-                                 'hints':None}
+                                 'ERRORS': None}
         self.check_test_results_directories()
 
     def add_hint(self,hint):

@@ -13,6 +13,7 @@ from stretch_wellness.test_runner import TestRunner
 from stretch_wellness.test_helpers import command_list_exec
 import click
 import glob
+from zipfile import ZipFile
 
 class TestManager():
     def __init__(self, test_type):
@@ -26,7 +27,7 @@ class TestManager():
         results_directory =os.environ['HELLO_FLEET_PATH']+'/log/wellness_check'
         self.test_timestamp = hu.create_time_string()
         self.tests_order = test_order[test_type]
-        self.WellnessCheck_filename = 'wellness_check_{}.yaml'.format(self.test_timestamp)
+        self.WellnessCheck_filename = 'wellness_check_%s_%s.yaml'%(self.test_type,self.test_timestamp)
         self.results_directory = results_directory
         self.system_health_dict = {'total_tests': 0,
                                    'total_tests_failed': 0,
@@ -64,6 +65,15 @@ class TestManager():
             return result
         except Exception as e:
             self.print_error('Unable to Run Test: {} \n Error: {}'.format(test_name, e))
+            return None
+
+    def get_latest_test_result_filename(self,test_name):
+        try:
+            listOfFiles = glob.glob(self.results_directory + '/' + test_name + '/' + test_name + '*.yaml')
+            listOfFiles.sort()
+            return listOfFiles[-1]
+        except:
+            self.print_error('Unable to find latest Result of {}'.format(test_name))
             return None
 
     def read_latest_test_result(self, test_name):
@@ -185,7 +195,31 @@ class TestManager():
         self.disable_print_warning = False
         self.disable_print_error = False
 
-    def generate_last_system_health_report(self):
+    def generate_latest_zip_file(self,zip_file=None):
+
+        if zip_file is None:
+            zip_file = self.results_directory+'/''wellness_check_{}.zip'.format(self.test_timestamp)
+
+        #Pass in a zip file to append new tests
+
+        files_to_zip=[self.results_directory+'/'+self.WellnessCheck_filename]
+        rel_path_directory='wellness_'
+        files_rel_path=[self.WellnessCheck_filename]
+
+        for test_name in self.tests_order:
+            fn = self.get_latest_test_result_filename(test_name)
+            if (fn):
+                files_to_zip.append(fn)
+                files_rel_path.append(fn.split('/')[-2] + '/' + fn.split('/')[-1])
+
+        with ZipFile(zip_file, 'w') as z:
+            for file,fn_path in zip(files_to_zip,files_rel_path):
+                print('Adding: %s'%file)
+                z.write(file,fn_path)
+        return zip_file
+
+
+    def generate_last_wellness_report(self,silent=False):
         tests_results_collection = []
         total_fail = 0
         total_tests = len(self.tests_order)
@@ -204,25 +238,28 @@ class TestManager():
         self.system_health_dict['total_tests_ran'] = total_tests_ran
         self.system_health_dict['total_tests_failed'] = total_fail
         if total_tests_ran == 0:
-            self.print_error('Zero Tests were Ran.')
-            print(Fore.RED)
+            if not silent:
+                self.print_error('Zero Tests were Ran.')
+                print(Fore.RED)
             self.system_health_dict['all_success'] = False
         elif total_fail == 0:
-            print(Fore.GREEN)
+            if not silent:
+                print(Fore.GREEN)
             self.system_health_dict['all_success'] = True
         else:
-            print(Fore.YELLOW)
+            if not silent:
+                print(Fore.YELLOW)
 
         with open(self.results_directory + '/' + self.WellnessCheck_filename, 'w') as file:
             documents = yaml.dump(self.system_health_dict, file)
-
-        print('\n\n')
-        print('Last System Health Check Report:')
-        print('================================')
-        print(yaml.dump(self.system_health_dict))
-        print('\nReported {} Fails.'.format(total_fail))
-        print(Style.RESET_ALL)
-        print('System Check Saved to : {}'.format(self.results_directory + '/' + self.WellnessCheck_filename))
+        if not silent:
+            print('\n\n')
+            print('Last Welness Report:')
+            print('================================')
+            print(yaml.dump(self.system_health_dict))
+            print('\nReported {} Fails.'.format(total_fail))
+            print(Style.RESET_ALL)
+            print('Wellness Check Saved to : {}'.format(self.results_directory + '/' + self.WellnessCheck_filename))
 
         return self.system_health_dict
 

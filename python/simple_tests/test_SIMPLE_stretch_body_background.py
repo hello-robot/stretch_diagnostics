@@ -15,7 +15,7 @@ class Test_SIMPLE_stretch_body_background(unittest.TestCase):
     Test USB Devices on Bus
     """
     test = TestBase('test_SIMPLE_stretch_body_background')
-    test.hint='Stretch Body processes running in background. Kill with: killall -9 python3'
+    test.add_hint('Stretch Body processes running in background. Kill with: killall -9 python3')
 
     def test_stretch_body_background(self):
         """
