@@ -8,11 +8,11 @@ import stretch_factory.hello_device_utils as hdu
 import stretch_body.pimu
 import stretch_body.hello_utils as hu
 
-class Test_PCBA_pimu(unittest.TestCase):
+class Test_SIMPLE_pimu(unittest.TestCase):
     """
     Test USB Devices on Bus
     """
-    test = TestBase('test_PCBA_pimu')
+    test = TestBase('test_SIMPLE_pimu')
     test.add_hint('Possible issue with PIMU at hardware / drive level')
 
     def test_pimu_present(self):
@@ -44,9 +44,9 @@ class Test_PCBA_pimu(unittest.TestCase):
         self.assertTrue(val_in_range('IMU Roll', hu.rad_to_deg(p.status['imu']['roll']), vmin=-12, vmax=12))
         p.stop()
 
-test_suite = TestSuite(test=Test_PCBA_pimu.test,failfast=False)
-test_suite.addTest(Test_PCBA_pimu('test_pimu_present'))
-test_suite.addTest(Test_PCBA_pimu('test_pimu_sensors'))
+test_suite = TestSuite(test=Test_SIMPLE_pimu.test,failfast=False)
+test_suite.addTest(Test_SIMPLE_pimu('test_pimu_present'))
+test_suite.addTest(Test_SIMPLE_pimu('test_pimu_sensors'))
 
 if __name__ == '__main__':
     runner = TestRunner(test_suite)
