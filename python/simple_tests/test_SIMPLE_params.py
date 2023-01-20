@@ -32,14 +32,14 @@ class Test_SIMPLE_params(unittest.TestCase):
             ue=exists(hu.get_fleet_directory() + 'stretch_re1_user_params.yaml')
             ce=exists(hu.get_fleet_directory() + 'stretch_re1_factory_params.yaml')
             if not ue or not ce:
-                self.test.add_hint('RE1 Parameters not found under HELLO_FLEET_PATH')
+                self.test.add_hint('Legacy parameter files missing on HELLO_FLEET_PATH')
             self.assertTrue(ue)
             self.assertTrue(ce)
         else:
             ue=exists(hu.get_fleet_directory() + 'stretch_user_params.yaml')
             ce=exists(hu.get_fleet_directory() + 'stretch_configuration_params.yaml')
             if not ue or not ce:
-                self.test.add_hint('Parameters not found, upgrade may be required. For more details, see https://forum.hello-robot.com/t/425')
+                self.test.add_hint('Parameter format upgrade may be required. For more details, see https://forum.hello-robot.com/t/425')
             self.assertTrue(ue)
             self.assertTrue(ce)
 

@@ -26,6 +26,8 @@ class Test_SIMPLE_realsense_status(unittest.TestCase):
         Gets the USB Bus number and device ID for monitoring
         """
         out = Popen("usb-devices | grep -B 5 -i 'RealSense' | grep -i 'Bus'", shell=True, bufsize=64, stdin=PIPE,stdout=PIPE, close_fds=True).stdout.read().decode()
+        if len(out)==0:
+            self.test.add_hint('Realsense D435i not found at USB Bus')
         self.assertNotEqual(len(out),0,msg='Realsense D435i not found at USB Bus')
         out_list = out.split(' ')
         bus_no = None
@@ -86,9 +88,8 @@ class Test_SIMPLE_realsense_status(unittest.TestCase):
         if len(out):
             print('Confirmed USB 3.2 connection to realsense device')
         else:
-            print('Did not find USB 3.2 connection to realsense device')
-            self.add_hint('Check camera cable connections')
-        self.assertIsNot(len(out), 0)
+            self.add_hint('Did not find USB 3.2 connection to realsense device')
+        self.assertIsNot(len(out), 0,msg='Did not find USB 3.2 connection to realsense device')
 
     def test_realsense_on_usb_bus(self):
         """
@@ -98,7 +99,7 @@ class Test_SIMPLE_realsense_status(unittest.TestCase):
         cmd = "lsusb -d 8086:0b3a"
         returned_value = subprocess.call(cmd, shell=True)  # returns the exit code in unix
         if returned_value!=0:
-            self.test.add_hint('Realsense not on bus. Check camera cables')
+            self.test.add_hint('Realsense D435i not found at USB Bus')
         self.assertEqual(returned_value,0)
 
     def test_realsense_details(self):
@@ -107,7 +108,7 @@ class Test_SIMPLE_realsense_status(unittest.TestCase):
         """
         d=get_rs_details()
         if d is None:
-            self.test.add_hint('Realsense driver may be conflicting with ROS. Reboot and try again')
+            self.test.add_hint('Not able to launch Realsense driver. It may be conflicting with ROS')
         self.assertIsNotNone(d)
         self.test.log_data('realsense_details',d)
 

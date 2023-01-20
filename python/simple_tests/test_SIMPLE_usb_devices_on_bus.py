@@ -59,6 +59,8 @@ class Test_SIMPLE_usb_devices_on_bus(unittest.TestCase):
 
         for k in robot_devices.keys():
             with self.subTest(msg=k):
+                if not robot_devices[k]:
+                    self.test.add_hint('Device %s not on USB bus'%k)
                 self.assertTrue(robot_devices[k], msg='{} Not found'.format(k))
         print(yaml.dump(robot_devices))
         self.test.log_data('devices_on_usb',robot_devices)

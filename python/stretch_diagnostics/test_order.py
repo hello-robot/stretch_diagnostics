@@ -14,7 +14,7 @@ test_order= {
         'test_SIMPLE_pimu',
         'test_SIMPLE_wacc',
         'test_SIMPLE_rplidar',
-
+        'test_SIMPLE_steppers'
         ],
 }
 
