@@ -70,11 +70,20 @@ class TestManager():
     def get_latest_test_log_filename(self,test_name):
         #Not all tests will also generate a log file
         try:
-            listOfFiles = glob.glob(self.results_directory + '/' + test_name + '/' + test_name + '*.log')
-            listOfFiles.sort()
-            return listOfFiles[-1]
+            list_of_files=[]
+            all_log_files = glob.glob(self.results_directory + '/' + test_name + '/' + '*.log')
+            unique_log_files=[]
+            for a in all_log_files:
+                base=a[:a.rfind('_')]
+                if not base in unique_log_files:
+                    unique_log_files.append(base)
+            for u in unique_log_files:
+                all_files = glob.glob(u + '*.log')
+                all_files.sort()
+                list_of_files.append(all_files[-1])
+            return list_of_files
         except:
-            return None
+            return []
 
     def get_latest_test_result_filename(self,test_name):
         try:
@@ -213,9 +222,9 @@ class TestManager():
             if (fn):
                 files_to_zip.append(fn)
                 files_rel_path.append(fn.split('/')[-2] + '/' + fn.split('/')[-1])
-            if (lfn):
-                files_to_zip.append(lfn)
-                files_rel_path.append(lfn.split('/')[-2] + '/' + lfn.split('/')[-1])
+            for l in lfn:
+                files_to_zip.append(l)
+                files_rel_path.append(l.split('/')[-2] + '/' + l.split('/')[-1])
 
         with ZipFile(zip_file, 'w') as z:
             for file,fn_path in zip(files_to_zip,files_rel_path):

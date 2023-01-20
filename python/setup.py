@@ -2,12 +2,10 @@ import setuptools
 from os import listdir
 from os.path import isfile, join
 
-
 scripts=set()
 script_paths=['./tools']
 for script_path in script_paths:
     scripts=scripts.union({script_path+'/'+f for f in listdir(script_path) if isfile(join(script_path, f))})
-
 
 setuptools.setup(
     name="hello_robot_stretch_diagnostics",
