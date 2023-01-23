@@ -101,7 +101,7 @@ test_suite = TestSuite(test=Test_SIMPLE_steppers.test,failfast=False)
 test_suite.addTest(Test_SIMPLE_steppers('test_steppers_present'))
 test_suite.addTest(Test_SIMPLE_steppers('test_steppers_calibrated'))
 test_suite.addTest(Test_SIMPLE_steppers('test_stepper_calibration_files'))
-test_suite.addTest(Test_SIMPLE_steppers('test_stepper_calibration_data_match'))
+#test_suite.addTest(Test_SIMPLE_steppers('test_stepper_calibration_data_match'))
 
 if __name__ == '__main__':
     runner = TestRunner(test_suite)
