@@ -3,6 +3,46 @@ import os
 import glob
 import pyrealsense2 as rs
 import stretch_factory.hello_device_utils as hdu
+import stretch_body.scope as scope
+import time
+
+class Scope_Log_Sensor:
+    """
+    Scope a sensor value and save the figure to a PNG file.
+    Optionally provide when callbacks to be called at some time after launch and before exiting
+    Return if complete or not
+    """
+    def __init__(self,duration,y_range=[0,100.0],title='Sensor',num_points=100, image_fn=None, start_fn=None, start_fn_ts=None,end_fn=None, end_fn_ts=None):
+
+        self.ts_start = time.time()
+        self.duration=duration
+        self.data = []
+        self.avg=None
+        self.image_fn=image_fn
+        self.start_fn=start_fn
+        self.start_fn_ts = start_fn_ts
+        self.end_fn = end_fn
+        self.end_fn_ts = end_fn_ts
+        self.scope= scope.Scope(num_points=num_points, yrange=y_range, title=title)
+    def step(self,sensor_value):
+        dt=time.time()-self.ts_start
+        if dt < self.duration:
+            if self.start_fn_ts is not None and dt > self.start_fn_ts and self.start_fn is not None:
+                self.start_fn()
+                self.start_fn = None
+            if self.end_fn_ts is not None and dt > self.end_fn_ts and self.end_fn is not None:
+                self.end_fn()
+                self.end_fn = None
+            self.data.append(sensor_value)
+            self.scope.step_display(sensor_value)
+            time.sleep(0.1)
+            return True
+        else:
+            if self.image_fn is not None:
+                self.scope.savefig(self.image_fn)
+                self.image_fn=None
+            self.avg=sum(self.data) / len(self.data)
+            return False
 
 def val_in_range(val_name, val, vmin, vmax,silent=False):
     p = val <= vmax and val >= vmin
