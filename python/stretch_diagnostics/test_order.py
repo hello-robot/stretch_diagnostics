@@ -15,7 +15,13 @@ test_order= {
         'test_SIMPLE_wacc',
         'test_SIMPLE_rplidar',
         'test_SIMPLE_steppers',
-        'test_SIMPLE_firmware'
+        'test_SIMPLE_firmware',
+        'test_SIMPLE_dynamixel_configure'
         ],
+    'power':[
+        #'test_POWER_charger',
+        'test_POWER_battery_loading'
+        ],
+
 }
 

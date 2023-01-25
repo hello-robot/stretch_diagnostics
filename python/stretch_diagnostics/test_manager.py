@@ -67,18 +67,19 @@ class TestManager():
             self.print_error('Unable to Run Test: {} \n Error: {}'.format(test_name, e))
             return None
 
-    def get_latest_test_log_filename(self,test_name):
-        #Not all tests will also generate a log file
+    def get_latest_files_with_extension(self,test_name, ext):
+        #Retrieve the latest files of type test_name with extension ext
+        #Not all tests will also generate a file of type ext
         try:
             list_of_files=[]
-            all_log_files = glob.glob(self.results_directory + '/' + test_name + '/' + '*.log')
-            unique_log_files=[]
-            for a in all_log_files:
+            all_files = glob.glob(self.results_directory + '/' + test_name + '/' + '*.'+ext)
+            unique_files=[]
+            for a in all_files:
                 base=a[:a.rfind('_')]
-                if not base in unique_log_files:
-                    unique_log_files.append(base)
-            for u in unique_log_files:
-                all_files = glob.glob(u + '*.log')
+                if not base in unique_files:
+                    unique_files.append(base)
+            for u in unique_files:
+                all_files = glob.glob(u + '*.'+ext)
                 all_files.sort()
                 list_of_files.append(all_files[-1])
             return list_of_files
@@ -218,13 +219,17 @@ class TestManager():
 
         for test_name in self.tests_order:
             fn = self.get_latest_test_result_filename(test_name)
-            lfn = self.get_latest_test_log_filename(test_name)
+            lfn = self.get_latest_files_with_extension(test_name,'log')
+            ifn = self.get_latest_files_with_extension(test_name,'png')
             if (fn):
                 files_to_zip.append(fn)
                 files_rel_path.append(fn.split('/')[-2] + '/' + fn.split('/')[-1])
             for l in lfn:
                 files_to_zip.append(l)
                 files_rel_path.append(l.split('/')[-2] + '/' + l.split('/')[-1])
+            for i in ifn:
+                files_to_zip.append(i)
+                files_rel_path.append(i.split('/')[-2] + '/' + i.split('/')[-1])
 
         with ZipFile(zip_file, 'w') as z:
             for file,fn_path in zip(files_to_zip,files_rel_path):

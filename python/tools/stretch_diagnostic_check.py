@@ -73,5 +73,8 @@ if args.all:
 if args.simple:
     run_test_type('simple')
 
+if args.power:
+    run_test_type('power')
+
 if not len(sys.argv) > 1:
     parser.error('No action requested. Please use one of the arguments listed above.')
