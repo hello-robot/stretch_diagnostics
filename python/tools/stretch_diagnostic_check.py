@@ -16,13 +16,14 @@ parser.add_argument("--zip", help="Generate zip file of latest diagnostic check"
 parser.add_argument("--archive", help="Archive old diagnostic test data", action="store_true")
 parser.add_argument("--menu", help="Run tests from command line menu", action="store_true")
 
-parser.add_argument("--simple", help="Run simple diagnostics across entire robot", action="store_true")
-parser.add_argument("--power", help="Run diagnostics on the power subsystem", action="store_true")
-parser.add_argument("--realsense", help="Run diagnostics on the Intel RealSense D435 camera", action="store_true")
-parser.add_argument("--steppers", help="Run diagnostics on all stepper drivers", action="store_true")
-parser.add_argument("--firmware", help="Run diagnostics on robot firmware versions", action="store_true")
-parser.add_argument("--dynamixel", help="Run diagnostics on all robot Dynamixel servos", action="store_true")
-parser.add_argument("--all", help="Run all diagnostics", action="store_true")
+group = parser.add_mutually_exclusive_group()
+group.add_argument("--simple", help="Run simple diagnostics across entire robot", action="store_true")
+group.add_argument("--power", help="Run diagnostics on the power subsystem", action="store_true")
+group.add_argument("--realsense", help="Run diagnostics on the Intel RealSense D435 camera", action="store_true")
+group.add_argument("--steppers", help="Run diagnostics on all stepper drivers", action="store_true")
+group.add_argument("--firmware", help="Run diagnostics on robot firmware versions", action="store_true")
+group.add_argument("--dynamixel", help="Run diagnostics on all robot Dynamixel servos", action="store_true")
+group.add_argument("--all", help="Run all diagnostics", action="store_true")
 
 args = parser.parse_args()
 
@@ -43,6 +44,8 @@ def run_test_type(test_type):
     else:
         mgmt.run_suite()
 
+if args.menu and len(sys.argv) < 3:
+    print('The --menu tag must be suffixed by a test type. E.g. stretch_diagnostics_check.py --menu --simple')
 
 if args.archive:
     for t in test_order.keys():
@@ -78,3 +81,5 @@ if args.power:
 
 if not len(sys.argv) > 1:
     parser.error('No action requested. Please use one of the arguments listed above.')
+
+
