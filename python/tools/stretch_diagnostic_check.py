@@ -15,6 +15,8 @@ parser.add_argument("--report", help="Report the latest diagnostic check", actio
 parser.add_argument("--zip", help="Generate zip file of latest diagnostic check", action="store_true")
 parser.add_argument("--archive", help="Archive old diagnostic test data", action="store_true")
 parser.add_argument("--menu", help="Run tests from command line menu", action="store_true")
+parser.add_argument("--list", type=int, metavar='verbosity', choices=[1, 2],nargs='?',
+                    help="Lists all the available TestSuites and its included TestCases Ordered (Default verbosity=1)", const=1)
 
 group = parser.add_mutually_exclusive_group()
 group.add_argument("--simple", help="Run simple diagnostics across entire robot", action="store_true")
@@ -71,13 +73,26 @@ if args.report:
 
 if args.all:
     for t in test_order.keys():
-        run_test_type(t)
+        if args.list:
+            print("\n")
+            mgmt = TestManager(test_type=t)
+            mgmt.list_ordered_tests(verbosity=int(args.list))
+        else:
+            run_test_type(t)
 
 if args.simple:
-    run_test_type('simple')
+    if args.list:
+        mgmt = TestManager(test_type='simple')
+        mgmt.list_ordered_tests(verbosity=int(args.list))
+    else:
+        run_test_type('simple')
 
 if args.power:
-    run_test_type('power')
+    if args.list:
+        mgmt = TestManager(test_type='power')
+        mgmt.list_ordered_tests(verbosity=int(args.list))
+    else:
+        run_test_type('power')
 
 if not len(sys.argv) > 1:
     parser.error('No action requested. Please use one of the arguments listed above.')

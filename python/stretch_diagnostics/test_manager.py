@@ -290,8 +290,8 @@ class TestManager():
     def list_ordered_tests(self, verbosity=1):
         all_tests_dict = {}
         txt = "Printing Orderded TestSuites  for %s and it's included Sub-TestCases" % self.test_type.upper()
-        print(txt)
-        print('-' * len(txt) + '\n')
+        print(Style.BRIGHT + txt)
+        print('-' * len(txt) + '\n' + Style.RESET_ALL)
         for i in range(len(self.tests_order)):
             test_name = self.tests_order[i]
             all_tests_dict[test_name] = {}
