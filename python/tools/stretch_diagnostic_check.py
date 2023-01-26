@@ -54,7 +54,7 @@ if args.archive:
     print('Archvied all diagnostic data under: %s'%mgmt.results_directory)
 
 if args.zip:
-    print(Style.BRIGHT + '############################## Zipping Latest Results ###############################')
+    print(Style.BRIGHT + '############################## Zipping Latest Results ###############################' + Style.RESET_ALL)
     zip_file=None
     for t in test_order.keys():
         mgmt = TestManager(test_type=t)

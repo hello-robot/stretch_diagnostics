@@ -25,16 +25,6 @@ test_order= {
         'test_POWER_battery_loading'
         ],
 
-    'arm':[
-
-    ],
-
-    'lift':[
-
-    ],
-
-
-
 
 }
 

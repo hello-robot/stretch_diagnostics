@@ -15,6 +15,7 @@ import click
 import glob
 from zipfile import ZipFile
 
+
 class TestManager():
     def __init__(self, test_type):
         self.next_test_ready = False
@@ -24,10 +25,10 @@ class TestManager():
         # Get Fleet ID
         self.fleet_id = os.environ['HELLO_FLEET_ID']
 
-        results_directory =os.environ['HELLO_FLEET_PATH']+'/log/diagnostic_check'
+        results_directory = os.environ['HELLO_FLEET_PATH'] + '/log/diagnostic_check'
         self.test_timestamp = hu.create_time_string()
         self.tests_order = test_order[test_type]
-        self.DiagnosticCheck_filename = 'diagnostic_check_%s_%s.yaml'%(self.test_type,self.test_timestamp)
+        self.DiagnosticCheck_filename = 'diagnostic_check_%s_%s.yaml' % (self.test_type, self.test_timestamp)
         self.results_directory = results_directory
         self.system_health_dict = {'total_tests': 0,
                                    'total_tests_failed': 0,
@@ -67,26 +68,26 @@ class TestManager():
             self.print_error('Unable to Run Test: {} \n Error: {}'.format(test_name, e))
             return None
 
-    def get_latest_files_with_extension(self,test_name, ext):
-        #Retrieve the latest files of type test_name with extension ext
-        #Not all tests will also generate a file of type ext
+    def get_latest_files_with_extension(self, test_name, ext):
+        # Retrieve the latest files of type test_name with extension ext
+        # Not all tests will also generate a file of type ext
         try:
-            list_of_files=[]
-            all_files = glob.glob(self.results_directory + '/' + test_name + '/' + '*.'+ext)
-            unique_files=[]
+            list_of_files = []
+            all_files = glob.glob(self.results_directory + '/' + test_name + '/' + '*.' + ext)
+            unique_files = []
             for a in all_files:
-                base=a[:a.rfind('_')]
+                base = a[:a.rfind('_')]
                 if not base in unique_files:
                     unique_files.append(base)
             for u in unique_files:
-                all_files = glob.glob(u + '*.'+ext)
+                all_files = glob.glob(u + '*.' + ext)
                 all_files.sort()
                 list_of_files.append(all_files[-1])
             return list_of_files
         except:
             return []
 
-    def get_latest_test_result_filename(self,test_name):
+    def get_latest_test_result_filename(self, test_name):
         try:
             listOfFiles = glob.glob(self.results_directory + '/' + test_name + '/' + test_name + '*.yaml')
             listOfFiles.sort()
@@ -137,7 +138,7 @@ class TestManager():
     def run_suite(self):
         for t in self.tests_order:
             self.run_test(t)
-            
+
     def run_menu(self):
         while True:
             self.print_status_report()
@@ -199,28 +200,28 @@ class TestManager():
             elif result['test_status']['status'] != 'SUCCESS':
                 click.secho('[%d] %s: Test result: FAIL' % (i, test_name,), fg="red")
                 for h in result['test_status']['hints']:
-                    click.secho('\t\tHINT: %s' % h,fg="red")
+                    click.secho('\t\tHINT: %s' % h, fg="red")
             else:
                 click.secho('[%d] %s: Test result: PASS' % (i, test_name), fg="green")
             i = i + 1
         self.disable_print_warning = False
         self.disable_print_error = False
 
-    def generate_latest_zip_file(self,zip_file=None):
+    def generate_latest_zip_file(self, zip_file=None):
 
         if zip_file is None:
-            zip_file = self.results_directory+'/''diagnostic_check_{}.zip'.format(self.test_timestamp)
+            zip_file = self.results_directory + '/''diagnostic_check_{}.zip'.format(self.test_timestamp)
 
-        #Pass in a zip file to append new tests
+        # Pass in a zip file to append new tests
 
-        files_to_zip=[self.results_directory+'/'+self.DiagnosticCheck_filename]
-        rel_path_directory='diagnostic_'
-        files_rel_path=[self.DiagnosticCheck_filename]
+        files_to_zip = [self.results_directory + '/' + self.DiagnosticCheck_filename]
+        rel_path_directory = 'diagnostic_'
+        files_rel_path = [self.DiagnosticCheck_filename]
 
         for test_name in self.tests_order:
             fn = self.get_latest_test_result_filename(test_name)
-            lfn = self.get_latest_files_with_extension(test_name,'log')
-            ifn = self.get_latest_files_with_extension(test_name,'png')
+            lfn = self.get_latest_files_with_extension(test_name, 'log')
+            ifn = self.get_latest_files_with_extension(test_name, 'png')
             if (fn):
                 files_to_zip.append(fn)
                 files_rel_path.append(fn.split('/')[-2] + '/' + fn.split('/')[-1])
@@ -230,15 +231,16 @@ class TestManager():
             for i in ifn:
                 files_to_zip.append(i)
                 files_rel_path.append(i.split('/')[-2] + '/' + i.split('/')[-1])
-
-        with ZipFile(zip_file, 'w') as z:
-            for file,fn_path in zip(files_to_zip,files_rel_path):
-                print('Adding: %s'%file)
-                z.write(file,fn_path)
+        try:
+            with ZipFile(zip_file, 'a') as z:
+                for file, fn_path in zip(files_to_zip, files_rel_path):
+                    print('Adding: %s' % file)
+                    z.write(file, fn_path)
+        except FileNotFoundError:
+            self.print_error("Unable zip the file {}".format(zip_file))
         return zip_file
 
-
-    def generate_last_diagnostic_report(self,silent=False):
+    def generate_last_diagnostic_report(self, silent=False):
         tests_results_collection = []
         total_fail = 0
         total_tests = len(self.tests_order)
@@ -268,9 +270,12 @@ class TestManager():
         else:
             if not silent:
                 print(Fore.YELLOW)
-
-        with open(self.results_directory + '/' + self.DiagnosticCheck_filename, 'w') as file:
-            documents = yaml.dump(self.system_health_dict, file)
+        try:
+            with open(self.results_directory + '/' + self.DiagnosticCheck_filename, 'w') as file:
+                documents = yaml.dump(self.system_health_dict, file)
+        except FileNotFoundError:
+            self.print_error(
+                "Unable to find file {}".format(self.results_directory + '/' + self.DiagnosticCheck_filename))
         if not silent:
             print('\n\n')
             print('Last Diagnostic Report:')
