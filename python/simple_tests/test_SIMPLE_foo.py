@@ -36,6 +36,7 @@ class Test_SIMPLE_foo(unittest.TestCase):
     def test_foo_1(self):
         """
         Short Description : Test foo 1
+
         """
         # a = 10 * (1 / 0)
         self.assertEqual(0, 0)
@@ -70,7 +71,7 @@ test_suite.addTest(Test_SIMPLE_foo('test_foo_2'))
 test_suite.addTest(Test_SIMPLE_foo('test_foo_3'))
 
 if __name__ == '__main__':
-    # Create a TestRunner object with BRI_TestRunner(suite,doc_verify_fail)
+    # Create a TestRunner object with TestRunner(suite,doc_verify_fail)
     # Arguments:
     #   suite = test_suite built
     #   doc_verify_fail = If "True" , checks if Class level and Test level docstring descriptions available
