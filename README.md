@@ -1,6 +1,6 @@
 ![](./docs/images/banner.png)
 # Overview 
-#### The Stretch Diagnostics Tools package provides tools to run different suites of tests on the stretch robot to debug issues.
+#### The Stretch Diagnostics package provides tools to run different suites of tests on the stretch robot to debug issues.
 *Note: This tool is to be used only with Hello Robot's guidance.*
 
 ## Installation
