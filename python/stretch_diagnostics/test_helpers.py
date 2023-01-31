@@ -12,12 +12,13 @@ class Scope_Log_Sensor:
     Optionally provide when callbacks to be called at some time after launch and before exiting
     Return if complete or not
     """
-    def __init__(self,duration,y_range=[0,100.0],title='Sensor',num_points=100, image_fn=None, start_fn=None, start_fn_ts=None,end_fn=None, end_fn_ts=None):
+    def __init__(self,duration,y_range=[0,100.0],title='Sensor',num_points=100, image_fn=None, start_fn=None, start_fn_ts=None,end_fn=None, end_fn_ts=None,delay=0.1):
 
         self.ts_start = time.time()
         self.duration=duration
         self.data = []
         self.avg=None
+        self.delay=delay
         self.image_fn=image_fn
         self.start_fn=start_fn
         self.start_fn_ts = start_fn_ts
@@ -35,10 +36,11 @@ class Scope_Log_Sensor:
                 self.end_fn = None
             self.data.append(sensor_value)
             self.scope.step_display(sensor_value)
-            time.sleep(0.1)
+            time.sleep(self.delay)
             return True
         else:
             if self.image_fn is not None:
+                print('Saving file %s'%self.image_fn)
                 self.scope.savefig(self.image_fn)
                 self.image_fn=None
             self.avg=sum(self.data) / len(self.data)

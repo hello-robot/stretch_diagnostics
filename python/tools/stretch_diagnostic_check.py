@@ -25,6 +25,7 @@ group.add_argument("--realsense", help="Run diagnostics on the Intel RealSense D
 group.add_argument("--steppers", help="Run diagnostics on all stepper drivers", action="store_true")
 group.add_argument("--firmware", help="Run diagnostics on robot firmware versions", action="store_true")
 group.add_argument("--dynamixel", help="Run diagnostics on all robot Dynamixel servos", action="store_true")
+group.add_argument("--gripper", help="Run diagnostics on the gripper subsystem", action="store_true")
 group.add_argument("--all", help="Run all diagnostics", action="store_true")
 
 args = parser.parse_args()
@@ -93,6 +94,20 @@ if args.power:
         mgmt.list_ordered_tests(verbosity=int(args.list))
     else:
         run_test_type('power')
+
+if args.dynamixel:
+    if args.list:
+        mgmt = TestManager(test_type='dynamixel')
+        mgmt.list_ordered_tests(verbosity=int(args.list))
+    else:
+        run_test_type('dynamixel')
+
+if args.gripper:
+    if args.list:
+        mgmt = TestManager(test_type='gripper')
+        mgmt.list_ordered_tests(verbosity=int(args.list))
+    else:
+        run_test_type('gripper')
 
 if not len(sys.argv) > 1:
     parser.error('No action requested. Please use one of the arguments listed above.')
