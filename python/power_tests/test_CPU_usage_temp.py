@@ -61,8 +61,8 @@ class Test_CPU_usage_temp(unittest.TestCase):
 
 test_suite = TestSuite(test=Test_CPU_usage_temp.test, failfast=False)
 
-test_suite.addTest(Test_SIMPLE_foo('test_CPU_usage'))
-test_suite.addTest(Test_SIMPLE_foo('test_CPU_temp'))
+test_suite.addTest(Test_CPU_usage_temp('test_CPU_usage'))
+test_suite.addTest(Test_CPU_usage_temp('test_CPU_temp'))
 
 if __name__ == '__main__':
     runner = TestRunner(suite=test_suite, doc_verify_fail=False)
