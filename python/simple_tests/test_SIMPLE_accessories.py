@@ -112,6 +112,9 @@ class Test_SIMPLE_accessories(unittest.TestCase):
         return found_ids
 
     def test_check_wrist_dynamixels(self):
+        """
+         Check the number of dynamixels present in the wrist
+        """
         dev_list = glob.glob('/dev/hello-dynamixel-*')
         print("Found Servo IDs: {}".format(dev_list))
         self.assertEqual(len(dev_list), 2, "Unable to find all hello-dynamixel-* devices")

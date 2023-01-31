@@ -7,7 +7,6 @@ from stretch_diagnostics.test_manager import TestManager
 from stretch_diagnostics.test_order import test_order
 from colorama import Style
 
-
 hu.print_stretch_re_use()
 
 parser = argparse.ArgumentParser(description='Script to run Diagnostic Test Suite and generate reports.', )
@@ -15,8 +14,9 @@ parser.add_argument("--report", help="Report the latest diagnostic check", actio
 parser.add_argument("--zip", help="Generate zip file of latest diagnostic check", action="store_true")
 parser.add_argument("--archive", help="Archive old diagnostic test data", action="store_true")
 parser.add_argument("--menu", help="Run tests from command line menu", action="store_true")
-parser.add_argument("--list", type=int, metavar='verbosity', choices=[1, 2],nargs='?',
-                    help="Lists all the available TestSuites and its included TestCases Ordered (Default verbosity=1)", const=1)
+parser.add_argument("--list", type=int, metavar='verbosity', choices=[1, 2], nargs='?',
+                    help="Lists all the available TestSuites and its included TestCases Ordered (Default verbosity=1)",
+                    const=1)
 
 group = parser.add_mutually_exclusive_group()
 group.add_argument("--simple", help="Run simple diagnostics across entire robot", action="store_true")
@@ -33,12 +33,13 @@ args = parser.parse_args()
 
 def print_report(suite_names=None):
     if suite_names is None:
-        suite_names=test_order.keys()
+        suite_names = test_order.keys()
     for t in suite_names:
-        print(Style.BRIGHT + '####################### %s TESTS #######################'%t.upper() + Style.RESET_ALL)
+        print(Style.BRIGHT + '####################### %s TESTS #######################' % t.upper() + Style.RESET_ALL)
         system_check = TestManager(test_type=t)
         system_check.print_status_report()
         print('')
+
 
 def run_test_type(test_type):
     mgmt = TestManager(test_type=test_type)
@@ -47,24 +48,36 @@ def run_test_type(test_type):
     else:
         mgmt.run_suite()
 
+
 if args.menu and len(sys.argv) < 3:
-    print('The --menu tag must be suffixed by a test type. E.g. stretch_diagnostics_check.py --menu --simple')
+    print("The '--menu' tag must be provided with a test type. E.g. stretch_diagnostics_check.py --menu --simple")
+    exit()
+
+if args.menu and args.all:
+    print("The `--menu` tag cannot be used with `--all` test type.")
+    exit()
+
+if (args.list and len(sys.argv) < 3) or (args.list and sys.argv[-1] == 'list'):
+    print("The '--list' tag must be prefixed by a test type (E.g. stretch_diagnostics_check.py --simple --list)")
+    exit()
+
 
 if args.archive:
     for t in test_order.keys():
         mgmt = TestManager(test_type=t)
         mgmt.archive_all_tests_status()
-    print('Archvied all diagnostic data under: %s'%mgmt.results_directory)
+    print('Archvied all diagnostic data under: %s' % mgmt.results_directory)
 
 if args.zip:
-    print(Style.BRIGHT + '############################## Zipping Latest Results ###############################' + Style.RESET_ALL)
-    zip_file=None
+    print(
+        Style.BRIGHT + '############################## Zipping Latest Results ###############################' + Style.RESET_ALL)
+    zip_file = None
     for t in test_order.keys():
         mgmt = TestManager(test_type=t)
         mgmt.generate_last_diagnostic_report(silent=True)
-        zip_file=mgmt.generate_latest_zip_file(zip_file=zip_file)
+        zip_file = mgmt.generate_latest_zip_file(zip_file=zip_file)
     print('\n----------- Complete -------------')
-    print('Zip file available at: %s'%zip_file)
+    print('Zip file available at: %s' % zip_file)
 
 if args.report:
     print(Style.BRIGHT + '############################## SUMMARY ###############################\n')
@@ -111,5 +124,3 @@ if args.gripper:
 
 if not len(sys.argv) > 1:
     parser.error('No action requested. Please use one of the arguments listed above.')
-
-
