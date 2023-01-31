@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 import unittest
 import psutil
-import stress
+import subprocess
+import time
 from stretch_diagnostics.test_base import TestBase
 from stretch_diagnostics.test_suite import TestSuite
 from stretch_diagnostics.test_runner import TestRunner
@@ -31,7 +32,8 @@ class Test_CPU_usage_temp(unittest.TestCase):
         """
         Test CPU usage is within acceptable limits
         """
-
+        
+        time.sleep(14)
         # Calling psutil.cpu_precent() for 4 seconds
         usage = psutil.cpu_percent(4)
         print('The CPU usage is: ', usage)
@@ -47,6 +49,7 @@ class Test_CPU_usage_temp(unittest.TestCase):
         Test CPU temperature is within acceptable limits
         """
         
+        time.sleep(14)
         temperature = psutil.sensors_temperatures()
         print('The CPU temperature is: ', temperature['coretemp'][0][1])
 
