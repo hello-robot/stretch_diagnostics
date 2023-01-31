@@ -56,8 +56,8 @@ class Test_SIMPLE_accessories(unittest.TestCase):
         if self.test.data_dict['robot_tool'] == 'tool_stretch_gripper' and self.test.data_dict[
             'robot_model'] == 'RE1V0':
             ref_params = standard_gripper_yaml_RE1V0
-            self.test.add_hint(
-                "Checkout Stretch wrist tool guide https://docs.hello-robot.com/0.2/stretch-hardware-guides/docs/dex_wrist_guide_re1/")
+            # self.test.add_hint(
+            #     "Checkout Stretch wrist tool guide https://docs.hello-robot.com/0.2/stretch-hardware-guides/docs/dex_wrist_guide_re1/")
         elif self.test.data_dict['robot_tool'] == 'tool_stretch_dex_wrist' and self.test.data_dict[
             'robot_model'] == 'RE1V0':
             ref_params = dex_wrist_yaml_RE1V0
@@ -66,8 +66,8 @@ class Test_SIMPLE_accessories(unittest.TestCase):
         elif self.test.data_dict['robot_tool'] == 'tool_stretch_gripper' and self.test.data_dict[
             'robot_model'] == 'RE2V0':
             ref_params = standard_gripper_yaml_RE2V0
-            self.test.add_hint(
-                "Checkout stretch wrist tool guide https://docs.hello-robot.com/0.2/stretch-hardware-guides/docs/dex_wrist_guide_re2/")
+            # self.test.add_hint(
+            #     "Checkout stretch wrist tool guide https://docs.hello-robot.com/0.2/stretch-hardware-guides/docs/dex_wrist_guide_re2/")
         elif self.test.data_dict['robot_tool'] == 'tool_stretch_dex_wrist' and self.test.data_dict[
             'robot_model'] == 'RE2V0':
             ref_params = dex_wrist_yaml_RE1V0
@@ -84,14 +84,24 @@ class Test_SIMPLE_accessories(unittest.TestCase):
         self.assertEqual(ref_params['params'], _params, "'params' dont match")
 
         _lift_i_feedforward = RobotParams.get_params()[1]['lift']['i_feedforward']
-        self.assertEqual(ref_params['lift']['i_feedforward'], _lift_i_feedforward,
-                         "Lift i_feedforward value does not match.")
+        delta=abs(ref_params['lift']['i_feedforward']- _lift_i_feedforward)
+        pct_diff = delta / ref_params['lift']['i_feedforward']
+        msg="Lift i_feedforward of %f is far from nominal of %f. Differ by %f pct. \nYou may need to run REx_calibrate_gravity_comp.py."%\
+            (ref_params['lift']['i_feedforward'],_lift_i_feedforward,pct_diff)
+        if pct_diff < 0.2:
+            self.test.add_hint(msg)
+        self.assertTrue(pct_diff<0.2,msg=msg)
 
         _hello_motor_lift_i_safety_feedforward = RobotParams.get_params()[1]['hello-motor-lift']['gains'][
             'i_safety_feedforward']
-        self.assertEqual(ref_params['hello-motor-lift']['gains']['i_safety_feedforward'],
-                         _hello_motor_lift_i_safety_feedforward,
-                         "hello-motor-lift safety i_feedforward value does not match.")
+        delta = abs(ref_params['hello-motor-lift']['gains']['i_safety_feedforward'] - _hello_motor_lift_i_safety_feedforward)
+        pct_diff = delta / ref_params['hello-motor-lift']['gains']['i_safety_feedforward']
+        msg = "Lift i_safety_feedforward of %f is far from nominal of %f. Differ by %f pct. \nYou may need to run REx_calibrate_gravity_comp.py." % \
+              (ref_params['hello-motor-lift']['gains']['i_safety_feedforward'], _hello_motor_lift_i_safety_feedforward, pct_diff)
+        if pct_diff < 0.2:
+            self.test.add_hint(msg)
+        self.assertTrue(pct_diff < 0.2, msg=msg)
+
 
     def get_servo_ids(self, port, baud_to=115200):
         found_ids = []
@@ -121,10 +131,22 @@ class Test_SIMPLE_accessories(unittest.TestCase):
         self.assertTrue('/dev/hello-dynamixel-wrist' in dev_list, "Unable to find device: /dev/hello-dynamixel-wrist")
         found_ids = self.get_servo_ids(port='/dev/hello-dynamixel-wrist')
         self.test.log_data('found_servo_ids', found_ids)
+
         if self.test.data_dict['robot_tool'] == 'tool_stretch_dex_wrist':
             self.assertEqual(len(found_ids), 4, "Unable to find the all the servos")
+            found=13 in found_ids and 14 in found_ids and 15 in found_ids and  16 in found_ids
+            msg = 'Invalid servo ids in wrist Dynamixel chain'
+            if not found:
+                self.test.add_hint(msg)
+            self.assertTrue(found,msg=msg)
+
         if self.test.data_dict['robot_tool'] == 'tool_stretch_gripper':
             self.assertEqual(len(found_ids), 2, "Unable to find the all the servos")
+            found = 13 in found_ids and 14 in found_ids
+            msg = 'Invalid servo ids in wrist Dynamixel chain'
+            if not found:
+                self.test.add_hint(msg)
+            self.assertTrue(found, msg=msg)
 
 
 test_suite = TestSuite(test=Test_SIMPLE_accessories.test, failfast=False)
