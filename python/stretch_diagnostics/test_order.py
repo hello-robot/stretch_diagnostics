@@ -24,7 +24,8 @@ test_order= {
         'test_POWER_charger',
         'test_POWER_battery_loading'
         ],
-
+    'cpu':[
+        'test_CPU_usage_temp'
+    ],
 
 }
-
