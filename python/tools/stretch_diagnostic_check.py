@@ -22,7 +22,7 @@ group = parser.add_mutually_exclusive_group()
 group.add_argument("--simple", help="Run simple diagnostics across entire robot", action="store_true")
 group.add_argument("--power", help="Run diagnostics on the power subsystem", action="store_true")
 group.add_argument("--realsense", help="Run diagnostics on the Intel RealSense D435 camera", action="store_true")
-group.add_argument("--steppers", help="Run diagnostics on all stepper drivers", action="store_true")
+group.add_argument("--stepper", help="Run diagnostics on stepper drivers", action="store_true")
 group.add_argument("--firmware", help="Run diagnostics on robot firmware versions", action="store_true")
 group.add_argument("--dynamixel", help="Run diagnostics on all robot Dynamixel servos", action="store_true")
 group.add_argument("--gripper", help="Run diagnostics on the gripper subsystem", action="store_true")
@@ -121,6 +121,13 @@ if args.gripper:
         mgmt.list_ordered_tests(verbosity=int(args.list))
     else:
         run_test_type('gripper')
+
+if args.stepper:
+    if args.list:
+        mgmt = TestManager(test_type='stepper')
+        mgmt.list_ordered_tests(verbosity=int(args.list))
+    else:
+        run_test_type('stepper')
 
 if not len(sys.argv) > 1:
     parser.error('No action requested. Please use one of the arguments listed above.')

@@ -6,6 +6,7 @@ The dictionary "test_order" should have all the robot batch specific test lists.
 
 test_order= {
     'simple':[
+        'test_SIMPLE_wifi',
         'test_SIMPLE_params',
         'test_SIMPLE_stretch_body_background',
         'test_SIMPLE_usb_devices_on_bus',
@@ -18,7 +19,7 @@ test_order= {
         'test_SIMPLE_firmware',
         'test_SIMPLE_dynamixel_configure',
         'test_SIMPLE_accessories',
-        #'test_SIMPLE_software_packages',
+        'test_SIMPLE_software_packages',
         ],
     'power':[
         'test_POWER_charger',
@@ -34,6 +35,8 @@ test_order= {
         ],
      'stepper':[
          'test_STEPPER_calibration_data_match',
+         'test_STEPPER_runstop'#,
+         #'test_STEPPER_sync'
          ],
 }
 
