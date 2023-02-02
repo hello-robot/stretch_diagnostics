@@ -1,6 +1,6 @@
 
 """
-This Librabry consists of all the test_* test suite names listed and ordered.
+This Library consists of all the test_* test suite names listed and ordered.
 The dictionary "test_order" should have all the robot batch specific test lists.
 """
 
@@ -25,7 +25,10 @@ test_order= {
         'test_POWER_battery_loading'
         ],
     'cpu':[
-        'test_CPU_usage_temp'
+        'test_CPU_usage_temp',
+    ],
+    'ros':[
+        'test_ROS_sourced_distro',
     ],
 
 }
