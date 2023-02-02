@@ -14,7 +14,6 @@ class Test_ROS_sourced_distro(unittest.TestCase):
 
     # test object is always expected within a TestCase Class
     test = TestBase('test_ROS_sourced_distro')
-    test.add_hint("This test is foo failure.")
 
     def test_ros_install(self):
         """
