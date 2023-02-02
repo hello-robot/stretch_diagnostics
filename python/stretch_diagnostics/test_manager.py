@@ -28,7 +28,7 @@ class TestManager():
         results_directory = os.environ['HELLO_FLEET_PATH'] + '/log/diagnostic_check'
         self.test_timestamp = hu.create_time_string()
         self.tests_order = test_order[test_type]
-        self.DiagnosticCheck_filename = 'diagnostic_check_%s_%s.yaml' % (self.test_type, self.test_timestamp)
+        self.DiagnosticCheck_filename = 'diagnostic_check_%s_%s_%s.yaml' % (self.test_type, self.fleet_id,self.test_timestamp)
         self.results_directory = results_directory
         self.system_health_dict = {'total_tests': 0,
                                    'total_tests_failed': 0,
@@ -210,7 +210,7 @@ class TestManager():
     def generate_latest_zip_file(self, zip_file=None):
 
         if zip_file is None:
-            zip_file = self.results_directory + '/''diagnostic_check_{}.zip'.format(self.test_timestamp)
+            zip_file = self.results_directory + '/diagnostic_check_%s_%s.zip'%(self.fleet_id,self.test_timestamp)
 
         # Pass in a zip file to append new tests
 
