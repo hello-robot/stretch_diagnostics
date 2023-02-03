@@ -73,6 +73,16 @@ class Dmesg_monitor:
         while self.is_live:
             self.dmesg_fetch_clear()
 
+    def clear(self):
+        with self.lock:
+            self.output_list = []
+
+    def get_latest_msg(self):
+        return self.prev_out
+
+    def get_output_list(self):
+        return self.output_list
+
 
 class Scope_Log_Sensor:
     """
