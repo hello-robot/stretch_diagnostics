@@ -143,19 +143,19 @@ class Test_REALSENSE_cable(unittest.TestCase):
 
                 print(Fore.YELLOW + '[Warning] Excessive dmesg warnings (%d) of: %s' % (
                 known_msgs[i][0], known_msgs[i][2]))
-                excessive_msgs.append('Excessive dmesg warnings (%d) of: %s' % (known_msgs[i][0], known_msgs[i][2]))
+                excessive_msgs.append(known_msgs[i][2])
                 no_error = False
         if len(unknown_msgs):
             print('[Warning] Unexpected dmesg warnings (%d)' % len(unknown_msgs))
-            unexpected_msgs.append('Unexpected dmesg warnings (%d)' % len(unknown_msgs))
+            unexpected_msgs = unknown_msgs
             no_error = False
             for i in unknown_msgs:
                 print(i)
         if no_error:
             print(Fore.GREEN + '[Pass] No unexpected dmesg warnings')
         print(Style.RESET_ALL)
-        self.test.log_data("excessive_dmesgs",excessive_msgs)
-        self.test.log_data("excessive_dmesgs", unexpected_msgs)
+        self.test.log_data("excessive_dmesgs", excessive_msgs)
+        self.test.log_data("unexpected_dmesgs", unexpected_msgs)
         self.assertTrue(no_error, "Errors captured in DMESGs.")
 
     def test_monitor_dmesg_with_head_motion(self):
