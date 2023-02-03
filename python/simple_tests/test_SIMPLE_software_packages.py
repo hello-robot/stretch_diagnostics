@@ -60,6 +60,8 @@ class Test_SIMPLE_software_packages(unittest.TestCase):
         installed_stretch_body_version = get_installed_package_versions("hello-robot-stretch-body")
         latest_stretch_body_version = get_latest_package_version("hello-robot-stretch-body")
 
+        print("Found Stretch Body : current_version={} | latest_version={}".format(installed_stretch_body_version,
+                                                                                   latest_stretch_body_version))
         self.test.log_params("latest_stretch_body_version", latest_stretch_body_version)
         self.test.log_data("installed_stretch_body_version", installed_stretch_body_version)
 
@@ -70,6 +72,8 @@ class Test_SIMPLE_software_packages(unittest.TestCase):
         installed_stretch_body_tools_version = get_installed_package_versions("hello-robot-stretch-body-tools")
         latest_stretch_body_tools_version = get_latest_package_version("hello-robot-stretch-body-tools")
 
+        print("Found Stretch Body Tools : current_version={} | latest_version={}".format(installed_stretch_body_tools_version,
+                                                                                   latest_stretch_body_tools_version))
         self.test.log_params("latest_stretch_body_tools_version", latest_stretch_body_tools_version)
         self.test.log_data("installed_stretch_body_tools_version", installed_stretch_body_tools_version)
 
@@ -80,6 +84,8 @@ class Test_SIMPLE_software_packages(unittest.TestCase):
         installed_stretch_factory_version = get_installed_package_versions("hello-robot-stretch-factory")
         latest_stretch_factory_version = get_latest_package_version("hello-robot-stretch-factory")
 
+        print("Found Stretch Factory : current_version={} | latest_version={}".format(installed_stretch_factory_version,
+                                                                                   latest_stretch_factory_version))
         self.test.log_params("latest_stretch_factory_version", latest_stretch_factory_version)
         self.test.log_data("installed_stretch_factory_version", installed_stretch_factory_version)
 
@@ -90,6 +96,8 @@ class Test_SIMPLE_software_packages(unittest.TestCase):
         installed_stretch_tool_share_version = get_installed_package_versions("hello-robot-stretch-tool-share")
         latest_stretch_tool_share_version = get_latest_package_version("hello-robot-stretch-tool-share")
 
+        print("Found Stretch Tool Share : current_version={} | latest_version={}".format(installed_stretch_tool_share_version,
+                                                                                   latest_stretch_tool_share_version))
         self.test.log_params("latest_stretch_tool_share_version", latest_stretch_tool_share_version)
         self.test.log_data("installed_stretch_tool_share_version", installed_stretch_tool_share_version)
 

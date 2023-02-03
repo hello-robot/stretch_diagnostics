@@ -26,6 +26,8 @@ group.add_argument("--stepper", help="Run diagnostics on stepper drivers", actio
 group.add_argument("--firmware", help="Run diagnostics on robot firmware versions", action="store_true")
 group.add_argument("--dynamixel", help="Run diagnostics on all robot Dynamixel servos", action="store_true")
 group.add_argument("--gripper", help="Run diagnostics on the gripper subsystem", action="store_true")
+group.add_argument("--ros", help="Run diagnostics on the ROS packages", action="store_true")
+group.add_argument("--cpu", help="Run diagnostics on the CPU", action="store_true")
 group.add_argument("--all", help="Run all diagnostics", action="store_true")
 
 args = parser.parse_args()
@@ -128,6 +130,41 @@ if args.stepper:
         mgmt.list_ordered_tests(verbosity=int(args.list))
     else:
         run_test_type('stepper')
+
+if args.realsense:
+    if args.list:
+        mgmt = TestManager(test_type='realsense')
+        mgmt.list_ordered_tests(verbosity=int(args.list))
+    else:
+        run_test_type('realsense')
+
+if args.ros:
+    if args.list:
+        mgmt = TestManager(test_type='ros')
+        mgmt.list_ordered_tests(verbosity=int(args.list))
+    else:
+        run_test_type('ros')
+
+if args.arm:
+    if args.list:
+        mgmt = TestManager(test_type='arm')
+        mgmt.list_ordered_tests(verbosity=int(args.list))
+    else:
+        run_test_type('arm')
+
+if args.cpu:
+    if args.list:
+        mgmt = TestManager(test_type='cpu')
+        mgmt.list_ordered_tests(verbosity=int(args.list))
+    else:
+        run_test_type('cpu')
+
+if args.gripper:
+    if args.list:
+        mgmt = TestManager(test_type='gripper')
+        mgmt.list_ordered_tests(verbosity=int(args.list))
+    else:
+        run_test_type('gripper')
 
 if not len(sys.argv) > 1:
     parser.error('No action requested. Please use one of the arguments listed above.')

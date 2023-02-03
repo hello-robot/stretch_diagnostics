@@ -44,4 +44,7 @@ test_order= {
          'test_STEPPER_runstop'#,
          #'test_STEPPER_sync'
          ],
+    'realsense':[
+        'test_REALSENSE_cable',
+    ],
 }

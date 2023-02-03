@@ -5,6 +5,73 @@ import pyrealsense2 as rs
 import stretch_factory.hello_device_utils as hdu
 import stretch_body.scope as scope
 import time
+import socket
+from subprocess import Popen, PIPE, STDOUT
+from threading import Thread, Lock
+
+
+class Dmesg_monitor:
+    """
+    Run live dmesg fetching in the backgorund using threading. Query the collected dmesg message
+    outputs or clear them in between sessions. Save the collected dmesg output at the end.
+
+    TODO: add methods for filtered capturing of Dmesg
+
+    Params
+    ------
+    print_new_msg =  Prints Dmesg live if True
+    log_fn = Optional file path to save the log at stop of dmesg monitor
+
+    """
+
+    def __init__(self, print_new_msg=False, log_fn=None):
+        self.prev_out = None
+        self.thread = None
+        self.output_list = []
+        self.is_live = False
+        self.lock = Lock()
+        self.print_new_msg = print_new_msg
+        self.log_fn = log_fn
+        os.system("sudo echo ''")
+
+    def dmesg_fetch_clear(self):
+        out = Popen("sudo dmesg -c", shell=True, bufsize=64, stdin=PIPE, stdout=PIPE, close_fds=True,
+                    stderr=PIPE).stdout.read().decode("utf-8")
+        out = str(out).split('\n')
+        with self.lock:
+            try:
+                # Filter ghost lines
+                if out[0] != self.prev_out[-1]:
+                    for o in out:
+                        if len(o) > 0:
+                            self.output_list.append(o)
+                            if self.print_new_msg:
+                                print("[DMESG]...{}".format(o))
+            except:
+                pass
+        self.prev_out = out
+
+    def write_lines_to_file(self, lines, file_path):
+        with open(os.path.expanduser(file_path), 'w') as file:
+            for line in lines:
+                file.write(line + '\n')
+        print("DMESG Log saved to: {}".format(self.log_fn))
+
+    def start(self):
+        self.is_live = True
+        self.thread = Thread(target=self.live)
+        self.thread.start()
+
+    def stop(self):
+        self.is_live = False
+        self.thread.join()
+        if self.log_fn is not None:
+            self.write_lines_to_file(self.output_list, self.log_fn)
+
+    def live(self):
+        while self.is_live:
+            self.dmesg_fetch_clear()
+
 
 class Scope_Log_Sensor:
     """
@@ -12,21 +79,24 @@ class Scope_Log_Sensor:
     Optionally provide when callbacks to be called at some time after launch and before exiting
     Return if complete or not
     """
-    def __init__(self,duration,y_range=[0,100.0],title='Sensor',num_points=100, image_fn=None, start_fn=None, start_fn_ts=None,end_fn=None, end_fn_ts=None,delay=0.1):
+
+    def __init__(self, duration, y_range=[0, 100.0], title='Sensor', num_points=100, image_fn=None, start_fn=None,
+                 start_fn_ts=None, end_fn=None, end_fn_ts=None, delay=0.1):
 
         self.ts_start = time.time()
-        self.duration=duration
+        self.duration = duration
         self.data = []
-        self.avg=None
-        self.delay=delay
-        self.image_fn=image_fn
-        self.start_fn=start_fn
+        self.avg = None
+        self.delay = delay
+        self.image_fn = image_fn
+        self.start_fn = start_fn
         self.start_fn_ts = start_fn_ts
         self.end_fn = end_fn
         self.end_fn_ts = end_fn_ts
-        self.scope= scope.Scope(num_points=num_points, yrange=y_range, title=title)
-    def step(self,sensor_value):
-        dt=time.time()-self.ts_start
+        self.scope = scope.Scope(num_points=num_points, yrange=y_range, title=title)
+
+    def step(self, sensor_value):
+        dt = time.time() - self.ts_start
         if dt < self.duration:
             if self.start_fn_ts is not None and dt > self.start_fn_ts and self.start_fn is not None:
                 self.start_fn()
@@ -40,13 +110,14 @@ class Scope_Log_Sensor:
             return True
         else:
             if self.image_fn is not None:
-                print('Saving file %s'%self.image_fn)
+                print('Saving file %s' % self.image_fn)
                 self.scope.savefig(self.image_fn)
-                self.image_fn=None
-            self.avg=sum(self.data) / len(self.data)
+                self.image_fn = None
+            self.avg = sum(self.data) / len(self.data)
             return False
 
-def val_in_range(val_name, val, vmin, vmax,silent=False):
+
+def val_in_range(val_name, val, vmin, vmax, silent=False):
     p = val <= vmax and val >= vmin
     if silent:
         return p
@@ -83,12 +154,13 @@ def print_instruction(text, ret=0):
     else:
         print(return_text)
 
+
 def print_bright(text):
     print(Style.BRIGHT + Fore.BLUE + text + Style.RESET_ALL)
 
+
 def print_bright_red(text):
     print(Style.BRIGHT + Fore.RED + text + Style.RESET_ALL)
-
 
 
 def system_check_warn(warning=None):
@@ -105,7 +177,6 @@ def command_list_exec(cmd_list):
     for c in cmd_list:
         cmd = cmd + c + ';'
     os.system(cmd)
-
 
 
 def find_tty_devices():
@@ -186,6 +257,7 @@ def extract_udevadm_info(usb_port, ID_NAME=None):
                 value = a.split('=')[-1]
     return value
 
+
 def get_rs_details():
     """
     Returns the details of the first found realsense devices in the bus
@@ -203,10 +275,18 @@ def get_rs_details():
         return None
 
     data = {}
-    data["device_pid"] =  dev.get_info(rs.camera_info.product_id)
+    data["device_pid"] = dev.get_info(rs.camera_info.product_id)
     data["device_name"] = dev.get_info(rs.camera_info.name)
     data["serial"] = dev.get_info(rs.camera_info.serial_number)
     data["firmware_version"] = dev.get_info(rs.camera_info.firmware_version)
 
     return data
 
+
+def check_internet():
+    try:
+        socket.create_connection(("www.github.com", 80))
+        return True
+    except OSError:
+        pass
+    return False
