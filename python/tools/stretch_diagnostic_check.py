@@ -28,7 +28,7 @@ group.add_argument("--dynamixel", help="Run diagnostics on all robot Dynamixel s
 group.add_argument("--gripper", help="Run diagnostics on the gripper subsystem", action="store_true")
 group.add_argument("--ros", help="Run diagnostics on the ROS packages", action="store_true")
 group.add_argument("--cpu", help="Run diagnostics on the CPU", action="store_true")
-group.add_argument("--arm", help="Run diagnostics on the CPU", action="store_true")
+group.add_argument("--arm", help="Run diagnostics on the Arm", action="store_true")
 group.add_argument("--all", help="Run all diagnostics", action="store_true")
 
 args = parser.parse_args()

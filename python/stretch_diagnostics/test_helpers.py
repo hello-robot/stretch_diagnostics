@@ -66,6 +66,7 @@ class Dmesg_monitor:
     def stop(self):
         self.is_live = False
         self.thread.join()
+        print("Ending DMESG capture....")
         if self.log_fn is not None:
             self.write_lines_to_file(self.output_list, self.log_fn)
 
