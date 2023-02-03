@@ -3,6 +3,8 @@ import unittest
 import psutil
 import subprocess
 import time
+import os
+import signal
 from stretch_diagnostics.test_base import TestBase
 from stretch_diagnostics.test_suite import TestSuite
 from stretch_diagnostics.test_runner import TestRunner
@@ -18,25 +20,25 @@ class Test_CPU_usage_temp(unittest.TestCase):
 
     @classmethod
     def setUpClass(self):
-        print('Starting CPU stress test. This test will take 20 seconds.')
-        subprocess.Popen("stress -c 4 --timeout 20s", shell=True)
-
-        pass
+        print('Starting CPU stress test. This test will take 40 seconds.')
+        subprocess.Popen("stress -c 4", shell=True)
 
     @classmethod
     def tearDownClass(self):
-
-        pass
+        for line in os.popen("ps ax | grep stress | grep -v grep"):
+            fields = line.split()
+            pid = fields[0]
+            os.kill(int(pid), signal.SIGKILL)
 
     def test_CPU_usage(self):
         """
         Test CPU usage is within acceptable limits
         """
         
-        time.sleep(14)
+        time.sleep(15)
         # Calling psutil.cpu_precent() for 4 seconds
         usage = psutil.cpu_percent(4)
-        print('The CPU usage is: ', usage)
+        print('The CPU usage is: {}%'.format(usage))
 
         self.test.log_data('test_cpu_usage', usage)
 
@@ -49,9 +51,9 @@ class Test_CPU_usage_temp(unittest.TestCase):
         Test CPU temperature is within acceptable limits
         """
         
-        time.sleep(14)
-        temperature = psutil.sensors_temperatures()
-        print('The CPU temperature is: ', temperature['coretemp'][0][1])
+        time.sleep(20)
+        temperature = psutil.sensors_temperatures()['coretemp'][0][1]
+        print('The CPU temperature is: ', '{} degC'.format(temperature))
 
         self.test.log_data('test_cpu_temperature', temperature)
 

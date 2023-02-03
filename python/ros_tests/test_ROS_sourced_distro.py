@@ -24,12 +24,14 @@ class Test_ROS_sourced_distro(unittest.TestCase):
             distro = subprocess.check_output(["ls", "/opt/ros"])
             distro = str(distro, 'UTF-8')
             distros = distro.split()
-        except subprocess.CalledProcessError:
-            distros = None
+            if not distros: # if /opt/ros directory exists but is empty
+                self.test.add_hint('No ROS installation detected. Install ROS.')
+        except subprocess.CalledProcessError: # if /opt/ros directory does not exist
+            distros = []
             self.test.add_hint('No ROS installation detected. Install ROS.')
 
-        self.test.log_data('ros_installed', distros)
-        self.assertIsNotNone(distros)
+        self.test.log_data('ros_distro_installed', distros)
+        self.assertTrue(distros)
 
     def test_distro_sourced(self):
         """
@@ -37,12 +39,12 @@ class Test_ROS_sourced_distro(unittest.TestCase):
         """
 
         distro = os.getenv('ROS_DISTRO')
-        self.test.log_data('ros_sourced', distro)
 
-        if distro == None:
-            self.test.add_hint('No ROS distro sourced. Source ROS in the ~/.bashrc file')
+        if not distro:
+            self.test.add_hint('No ROS distro sourced. Source ROS in the ~/.bashrc file.')
 
-        self.assertIsNotNone(distro)
+        self.test.log_data('ros_distro_sourced', distro)
+        self.assertTrue(distro)
         
     def test_workspace_sourced(self):
         """
@@ -50,6 +52,7 @@ class Test_ROS_sourced_distro(unittest.TestCase):
         """
 
         sourced = False
+        ros_ws_sourced = None
         distro = os.getenv('ROS_DISTRO')
 
         home_path = os.getenv('HOME')
@@ -62,27 +65,31 @@ class Test_ROS_sourced_distro(unittest.TestCase):
             for line in file:
                 if 'source' in line:
                     if '#' not in line:
-                        line_list.append(line.split())
+                        line_list.append(line)
 
         if not line_list:
-            self.test.add_hint('There is no ROS workspace sourced. Source workspace in .bashrc file')
+            self.test.add_hint('There is no ros workspace sourced. Source {} workspace in .bashrc file.'.format(distro))
         else:
-            if distro == 'melodic' or 'noetic':
-                for line in line_list:
-                    if catkin_ws_path in line:
-                        sourced = True
-            elif distro == 'galactic':
-                for line in line_list:
-                    if ament_ws_path in line:
-                        sourced = True
+            for line in line_list:
+                if distro in ['melodic', 'noetic'] and catkin_ws_path in line:
+                    sourced = True
+                    ros_ws_sourced = catkin_ws_path
+                elif distro in ['galactic', 'humble'] and ament_ws_path in line:
+                    sourced = True
+                    ros_ws_sourced = ament_ws_path
+                elif distro in ['galactic', 'humble'] and catkin_ws_path in line: # Conflicting workspace
+                    sourced = False
+                    ros_ws_sourced = catkin_ws_path
+                    break
+                elif distro in ['melodic', 'noetic'] and ament_ws_path in line: # Conflicting workspace
+                    sourced = False
+                    ros_ws_sourced = ament_ws_path
+                    break
 
-        for line in line_list:
-            if ament_ws_path or catkin_ws_path in line:
-                self.test.log_data
-
-        if sourced == False:
-            self.test.add_hint('Check .bashrc file to ensure correct ROS workspace has been sourced')
-
+        if not sourced:
+            self.test.add_hint('Either no or conflicting ros workspace sourced. Source correct ros workspace in .bashrc file.')
+        
+        self.test.log_data('ros_ws_sourced', ros_ws_sourced)
         self.assertTrue(sourced)
 
 
