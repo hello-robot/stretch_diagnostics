@@ -3,6 +3,7 @@ import unittest
 from stretch_diagnostics.test_base import TestBase
 from stretch_diagnostics.test_suite import TestSuite
 from stretch_diagnostics.test_runner import TestRunner
+import os
 
 
 class Test_SIMPLE_filesystem(unittest.TestCase):
@@ -12,8 +13,38 @@ class Test_SIMPLE_filesystem(unittest.TestCase):
 
     test = TestBase('test_SIMPLE_filesystem')
 
+    def check_file_paths(self, file_path_list):
+        for f in file_path_list:
+            check = os.path.isfile(os.path.expanduser(f))
+            self.assertTrue(check, "File not found : {}".format(f))
+            self.test.add_hint("File not found : {}".format(f))
+
+    def check_dir_paths(self, file_dir_list):
+        for f in file_dir_list:
+            check = os.path.isfile(os.path.expanduser(f))
+            self.assertTrue(check, "Directory not found : {}".format(f))
+            self.test.add_hint("Directory not found : {}".format(f))
+
     def test_check_stretch_user_files(self):
-        pass
+        """
+        Verify existance of user files
+        """
+        files = ["~/stretch_user/{}/stretch_configuration_params.yaml".format(self.test.fleet_id),
+                 "~/stretch_user/{}/stretch_user_params.yaml".format(self.test.fleet_id)]
+                # ADD More
+
+        dirs = ["~/stretch_user",
+                "~/stretch_user/{}/calibration_base_imu".format(self.test.fleet_id),
+                "~/stretch_user/{}/calibration_steppers".format(self.test.fleet_id),
+                "~/stretch_user/{}/calibration_D43i".format(self.test.fleet_id),
+                "~/stretch_user/{}/calibration_guarded_contact".format(self.test.fleet_id),
+                "~/stretch_user/{}/calibration_ros".format(self.test.fleet_id),
+                "~/stretch_user/{}/calibration_guarded_contact".format(self.test.fleet_id),
+                "~/stretch_user/{}/exported_urdf".format(self.test.fleet_id),
+                "~/stretch_user/{}/udev".format(self.test.fleet_id)]
+
+        self.check_dir_paths(dirs)
+        self.check_file_paths(files)
 
     def test_udev_files(self):
         pass
