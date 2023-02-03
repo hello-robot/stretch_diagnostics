@@ -46,5 +46,6 @@ test_order= {
          ],
     'realsense':[
         'test_REALSENSE_cable',
+        'test_REALSENSE_frame_rate'
     ],
 }

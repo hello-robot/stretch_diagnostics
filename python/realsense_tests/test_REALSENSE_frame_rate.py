@@ -13,6 +13,9 @@ import stretch_body.robot
 import subprocess
 from tabulate import tabulate
 
+# Enter each stream's pass fps rate
+streams_assert = {'Depth': 29, 'Color': 29, 'Gyro': 199, 'Accel': 62}  # Refer create_config_target_*
+
 
 def create_config_target_hi_res():
     f = open('/tmp/d435i_confg.cfg', "w+")
@@ -23,7 +26,6 @@ def create_config_target_hi_res():
 
     header = ["STREAM", "WIDTH", "HEIGHT", "FPS", "FORMAT", "STREAM_INDEX"]
     config_data = []
-    check_log.append("Camera Stream Config:")
     for ll in config_script:
         f.write(ll + "\n")
         config_data.append(ll.split(','))
@@ -67,14 +69,78 @@ def create_config_target_low_res():
     return target
 
 
+def get_frame_id_from_log_line(stream_type, line):
+    if line.find(stream_type) != 0:
+        return None
+    return int(line.split(',')[2])
+
+
+def get_rs_data(target):
+    cmd = 'rs-data-collect -c /tmp/d435i_confg.cfg -f /tmp/d435i_log.csv -t %d -m %d' % (
+    target['duration'], target['nframe'])
+    out = Popen(cmd, shell=True, bufsize=64, stdin=PIPE, stdout=PIPE, close_fds=True).stdout.read().decode("utf-8")
+    ff = open('/tmp/d435i_log.csv')
+    data = ff.readlines()
+    data = data[10:]  # drop preamble
+    return data
+
+def get_fps(data,stream,t):
+    timestamps = []
+    for ll in data:
+        tag = stream+','+t
+        if tag in ll:
+            l = ll.split(',')[-1].split('\n')[0]
+            if stream=='Accel' or stream=='Gyro':
+                l = ll.split(',')[-4].split('\n')[0]
+            timestamp = float(l)/1000
+            timestamps.append(timestamp)
+    if len(timestamps)>1:
+        duration = timestamps[-1]-timestamps[0]
+        avg_fps = len(timestamps)/duration
+        return avg_fps
+    else:
+        return 000.0
+
+
+def check_FPS(data):
+    fps_dict = {}
+    for s in streams_assert.keys():
+        fps = get_fps(data, s, '0')
+        fps_dict[s] = fps
+        if fps > streams_assert[s]:
+            print(Fore.GREEN + '[Pass] %s Rate : %f FPS' % (s, fps) + Style.RESET_ALL)
+        else:
+            print(Fore.RED + '[Fail] %s Rate : %f FPS < %d FPS' % (s, fps, streams_assert[s]) + Style.RESET_ALL)
+    return fps_dict
+
+def check_frames_collected(data, target):
+    frames_n_dict = {}
+    for ll in data:
+        for kk in target['streams'].keys():
+            id = get_frame_id_from_log_line(kk, ll)
+            if id is not None:
+                target['streams'][kk]['sampled'] = max(id, target['streams'][kk]['sampled'])
+    for kk in target['streams'].keys():
+        sampled_frames = target['streams'][kk]['sampled']
+        min_frames = target['streams'][kk]['target'] - target['margin']
+        frames_n_dict[kk]={'sampled_frames':sampled_frames, 'min_frames': min_frames}
+        if sampled_frames >= min_frames:
+            print(Fore.GREEN + '[Pass] Stream: %s with %d frames collected' % (kk, sampled_frames))
+        else:
+            print(Fore.RED + '[Fail] Stream: %s with %d frames of %d collected' % (kk, sampled_frames, min_frames))
+    print(Style.RESET_ALL)
+    return frames_n_dict
+
+
 class Test_REALSENSE_frame_rate(unittest.TestCase):
     """
     Testing the frame rate capture performance of realsense
     """
 
     # test object is always expected within a TestCase Class
-    test = TestBase('test_REALSENSE_cable')
-    test.add_hint("Realsense cable might be having issues.")
+    test = TestBase('test_REALSENSE_frame_rate')
+    test.add_hint("Realsense frame rate issues can sometimes be solved by relasense drivers reinstall or firmware "
+                  "update.")
 
     @classmethod
     def setUpClass(self):
@@ -126,16 +192,85 @@ class Test_REALSENSE_frame_rate(unittest.TestCase):
         self.assertIsNotNone(d)
         self.test.log_data('realsense_details', d)
 
+    def test_get_realsense_drivers_info(self):
+        """
+        Collect realsense driver information
+        """
+        driver_info = {}
+
+        fw_details = Popen("rs-fw-update -l | grep -i 'firmware'", shell=True, bufsize=64, stdin=PIPE, stdout=PIPE,
+                           close_fds=True).stdout.read().decode()
+        fw_details = fw_details.split(',')[3]
+        fw_version = fw_details.split(' ')[-1]
+        driver_info['fw_version'] = fw_version
+
+        nuc_bios_version = Popen("sudo dmidecode -s bios-version", shell=True, bufsize=64, stdin=PIPE, stdout=PIPE,
+                                 close_fds=True).stdout.read().decode().rstrip()
+        system_version = Popen("sudo dmidecode -s system-version", shell=True, bufsize=64, stdin=PIPE, stdout=PIPE,
+                               close_fds=True).stdout.read().decode().rstrip()
+        baseboard_version = Popen("sudo dmidecode -s baseboard-version", shell=True, bufsize=64, stdin=PIPE,
+                                  stdout=PIPE, close_fds=True).stdout.read().decode().rstrip()
+        processor_version = Popen("sudo dmidecode -s processor-version", shell=True, bufsize=64, stdin=PIPE,
+                                  stdout=PIPE, close_fds=True).stdout.read().decode().rstrip()
+        kernel_version = Popen("uname -r", shell=True, bufsize=64, stdin=PIPE, stdout=PIPE,
+                               close_fds=True).stdout.read().decode().rstrip()
+
+        driver_info['nuc_bios_version'] = nuc_bios_version
+        driver_info['system_version'] = system_version
+        driver_info['baseboard_version'] = baseboard_version
+        driver_info['processor_version'] = processor_version
+        driver_info['firmware_vekernel_versionrsion'] = kernel_version
+
+        # check_install_v4l2()
+        print('\nD435i Firmware version: %s\n' % (fw_version))
+        print("Linux Kernel Version : %s" % (kernel_version))
+        print("NUC Bios Version : %s" % (nuc_bios_version))
+        print("NUC System Version : %s" % (system_version))
+        print("NUC Baseboard Version : %s" % (baseboard_version))
+        print("Processor Version : %s" % (processor_version))
+        self.test.log_data('system_info', driver_info)
+
     def test_frame_rate_high_res(self):
-        pass
+        """
+        Check the frames collected and frame rate achieved while collecting high res rs data
+        """
+        target = create_config_target_hi_res()
+        self.test.log_params("high_res_config",target)
+
+        data = get_rs_data(target)
+        frames_collected = check_frames_collected(data,target)
+        fps_dict = check_FPS(data)
+        self.test.log_data("high_res_frames_collected", frames_collected)
+        self.test.log_data("high_res_frame_rates",fps_dict)
+
+        for kk in frames_collected.keys():
+            self.assertGreaterEqual(frames_collected[kk]['sampled_frames'], frames_collected[kk]['min_frames'])
+        for s in streams_assert.keys():
+            self.assertGreater(fps_dict[s],streams_assert[s])
 
     def test_frame_rate_low_res(self):
-        pass
+        """
+        Check the frames collected and frame rate achieved while collecting low res rs data
+        """
+        target = create_config_target_low_res()
+        self.test.log_params("high_res_config", target)
+
+        data = get_rs_data(target)
+        frames_collected = check_frames_collected(data, target)
+        fps_dict = check_FPS(data)
+        self.test.log_data("low_res_frames_collected", frames_collected)
+        self.test.log_data("low_res_frame_rates", fps_dict)
+
+        for kk in frames_collected.keys():
+            self.assertGreaterEqual(frames_collected[kk]['sampled_frames'], frames_collected[kk]['min_frames'])
+        for s in streams_assert.keys():
+            self.assertGreater(fps_dict[s],streams_assert[s])
 
 
 test_suite = TestSuite(test=Test_REALSENSE_frame_rate.test, failfast=False)
 test_suite.addTest(Test_REALSENSE_frame_rate('test_USB3_2_connection'))
 test_suite.addTest(Test_REALSENSE_frame_rate('test_realsense_on_usb_bus'))
+test_suite.addTest(Test_REALSENSE_frame_rate('test_get_realsense_drivers_info'))
 test_suite.addTest(Test_REALSENSE_frame_rate('test_realsense_details'))
 test_suite.addTest(Test_REALSENSE_frame_rate('test_frame_rate_high_res'))
 test_suite.addTest(Test_REALSENSE_frame_rate('test_frame_rate_low_res'))
