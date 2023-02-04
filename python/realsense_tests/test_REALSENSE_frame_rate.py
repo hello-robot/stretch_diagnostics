@@ -69,6 +69,19 @@ def create_config_target_low_res():
     return target
 
 
+# Include all the known kernel non problematic messages here
+# index     1:no.occured 2:no.Acceptable_Occurances 3:Message
+known_msgs = [[0, 15, 'uvcvideo: Failed to query (GET_CUR) UVC control'],
+              [0, 4, 'Non-zero status (-71) in video completion handler'],
+              [0, 4, 'No report with id 0xffffffff found'],
+              [0, 10, 'uvcvideo: Found UVC 1.50 device Intel(R) RealSense(TM) Depth Camera 435'],
+              [0, 5, 'uvcvideo: Unable to create debugfs'],
+              [0, 4, 'hid-sensor-hub'],
+              [0, 6, 'input: Intel(R) RealSense(TM) Depth Ca'],
+              [0, 1, 'uvcvideo: Failed to resubmit video URB (-1).'],
+              [0, 1, 'Netfilter messages via NETLINK v0.30.']]
+
+
 def get_frame_id_from_log_line(stream_type, line):
     if line.find(stream_type) != 0:
         return None
@@ -77,26 +90,27 @@ def get_frame_id_from_log_line(stream_type, line):
 
 def get_rs_data(target):
     cmd = 'rs-data-collect -c /tmp/d435i_confg.cfg -f /tmp/d435i_log.csv -t %d -m %d' % (
-    target['duration'], target['nframe'])
+        target['duration'], target['nframe'])
     out = Popen(cmd, shell=True, bufsize=64, stdin=PIPE, stdout=PIPE, close_fds=True).stdout.read().decode("utf-8")
     ff = open('/tmp/d435i_log.csv')
     data = ff.readlines()
     data = data[10:]  # drop preamble
     return data
 
-def get_fps(data,stream,t):
+
+def get_fps(data, stream, t):
     timestamps = []
     for ll in data:
-        tag = stream+','+t
+        tag = stream + ',' + t
         if tag in ll:
             l = ll.split(',')[-1].split('\n')[0]
-            if stream=='Accel' or stream=='Gyro':
+            if stream == 'Accel' or stream == 'Gyro':
                 l = ll.split(',')[-4].split('\n')[0]
-            timestamp = float(l)/1000
+            timestamp = float(l) / 1000
             timestamps.append(timestamp)
-    if len(timestamps)>1:
-        duration = timestamps[-1]-timestamps[0]
-        avg_fps = len(timestamps)/duration
+    if len(timestamps) > 1:
+        duration = timestamps[-1] - timestamps[0]
+        avg_fps = len(timestamps) / duration
         return avg_fps
     else:
         return 000.0
@@ -113,6 +127,7 @@ def check_FPS(data):
             print(Fore.RED + '[Fail] %s Rate : %f FPS < %d FPS' % (s, fps, streams_assert[s]) + Style.RESET_ALL)
     return fps_dict
 
+
 def check_frames_collected(data, target):
     frames_n_dict = {}
     for ll in data:
@@ -123,7 +138,7 @@ def check_frames_collected(data, target):
     for kk in target['streams'].keys():
         sampled_frames = target['streams'][kk]['sampled']
         min_frames = target['streams'][kk]['target'] - target['margin']
-        frames_n_dict[kk]={'sampled_frames':sampled_frames, 'min_frames': min_frames}
+        frames_n_dict[kk] = {'sampled_frames': sampled_frames, 'min_frames': min_frames}
         if sampled_frames >= min_frames:
             print(Fore.GREEN + '[Pass] Stream: %s with %d frames collected' % (kk, sampled_frames))
         else:
@@ -235,18 +250,19 @@ class Test_REALSENSE_frame_rate(unittest.TestCase):
         Check the frames collected and frame rate achieved while collecting high res rs data
         """
         target = create_config_target_hi_res()
-        self.test.log_params("high_res_config",target)
+        self.test.log_params("high_res_config", target)
 
+        print("Collecting High res data from realsense......")
         data = get_rs_data(target)
-        frames_collected = check_frames_collected(data,target)
+        frames_collected = check_frames_collected(data, target)
         fps_dict = check_FPS(data)
         self.test.log_data("high_res_frames_collected", frames_collected)
-        self.test.log_data("high_res_frame_rates",fps_dict)
+        self.test.log_data("high_res_frame_rates", fps_dict)
 
         for kk in frames_collected.keys():
             self.assertGreaterEqual(frames_collected[kk]['sampled_frames'], frames_collected[kk]['min_frames'])
         for s in streams_assert.keys():
-            self.assertGreater(fps_dict[s],streams_assert[s])
+            self.assertGreater(fps_dict[s], streams_assert[s])
 
     def test_frame_rate_low_res(self):
         """
@@ -255,6 +271,7 @@ class Test_REALSENSE_frame_rate(unittest.TestCase):
         target = create_config_target_low_res()
         self.test.log_params("high_res_config", target)
 
+        print("Collecting Low res data from realsense......")
         data = get_rs_data(target)
         frames_collected = check_frames_collected(data, target)
         fps_dict = check_FPS(data)
@@ -264,7 +281,46 @@ class Test_REALSENSE_frame_rate(unittest.TestCase):
         for kk in frames_collected.keys():
             self.assertGreaterEqual(frames_collected[kk]['sampled_frames'], frames_collected[kk]['min_frames'])
         for s in streams_assert.keys():
-            self.assertGreater(fps_dict[s],streams_assert[s])
+            self.assertGreater(fps_dict[s], streams_assert[s])
+
+    def check_dmesg(self, msgs):
+        unknown_msgs = []
+        excessive_msgs = []
+        unexpected_msgs = []
+        no_error = True
+        for m in msgs:
+            if len(m):
+                found = False
+                for i in range(len(known_msgs)):
+                    if m.find(known_msgs[i][2]) != -1:
+                        found = True
+                        known_msgs[i][0] = known_msgs[i][0] + 1
+                if not found:
+                    unknown_msgs.append(m)
+        for i in range(len(known_msgs)):
+            if known_msgs[i][0] >= known_msgs[i][1]:
+                print(Fore.YELLOW + '[Warning] Excessive dmesg warnings (%d) of: %s' % (
+                    known_msgs[i][0], known_msgs[i][2]))
+                excessive_msgs.append(known_msgs[i][2])
+                no_error = False
+        if len(unknown_msgs):
+            print('[Warning] Unexpected dmesg warnings (%d)' % len(unknown_msgs))
+            unexpected_msgs = unknown_msgs
+            no_error = False
+            for i in unknown_msgs:
+                print(i)
+        if no_error:
+            print(Fore.GREEN + '[Pass] No unexpected dmesg warnings')
+        print(Style.RESET_ALL)
+        self.test.log_data("excessive_dmesgs", excessive_msgs)
+        self.test.log_data("unexpected_dmesgs", unexpected_msgs)
+        self.assertTrue(no_error, "Errors captured in DMESGs.")
+
+    def test_check_dmesgs(self):
+        """
+        Check Dmesg output errors
+        """
+        self.check_dmesg(self.dmesg.get_output_list())
 
 
 test_suite = TestSuite(test=Test_REALSENSE_frame_rate.test, failfast=False)
@@ -274,6 +330,7 @@ test_suite.addTest(Test_REALSENSE_frame_rate('test_get_realsense_drivers_info'))
 test_suite.addTest(Test_REALSENSE_frame_rate('test_realsense_details'))
 test_suite.addTest(Test_REALSENSE_frame_rate('test_frame_rate_high_res'))
 test_suite.addTest(Test_REALSENSE_frame_rate('test_frame_rate_low_res'))
+test_suite.addTest(Test_REALSENSE_frame_rate('test_check_dmesgs'))
 
 if __name__ == '__main__':
     runner = TestRunner(suite=test_suite, doc_verify_fail=False)
