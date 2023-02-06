@@ -80,7 +80,7 @@ class Test_SIMPLE_filesystem(unittest.TestCase):
         """
         Check if /etc directory has stretch user files and udev
         """
-        dirs = ["/etc/{}".format(self.test.fleet_id)]
+        dirs = ["/etc/hello-robot/{}".format(self.test.fleet_id)]
         files = ["/etc/udev/rules.d/60-openocd.rules",
                  "/etc/udev/rules.d/90-hello-respeaker.rules",
                  "/etc/udev/rules.d/91-hello-lrf.rules",

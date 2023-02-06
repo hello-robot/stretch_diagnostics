@@ -9,7 +9,7 @@ for script_path in script_paths:
 
 setuptools.setup(
     name="hello_robot_stretch_diagnostics",
-    version="0.0.1",
+    version="0.0.2",
     author="Hello Robot Inc.",
     author_email="support@hello-robot.com",
     description="Stretch Diagnostics",
