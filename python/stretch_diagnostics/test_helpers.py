@@ -1,6 +1,8 @@
 from colorama import Fore, Style
 import os
 import glob
+
+import click
 import pyrealsense2 as rs
 import stretch_factory.hello_device_utils as hdu
 import stretch_body.scope as scope
@@ -8,6 +10,7 @@ import time
 import socket
 from subprocess import Popen, PIPE, STDOUT
 from threading import Thread, Lock
+import zipfile
 
 
 class Dmesg_monitor:
@@ -127,6 +130,11 @@ class Scope_Log_Sensor:
                 self.image_fn = None
             self.avg = sum(self.data) / len(self.data)
             return False
+
+
+def extract_zip(zip_file_path, extract_to_path):
+    with zipfile.ZipFile(zip_file_path, 'r') as zip_ref:
+        zip_ref.extractall(extract_to_path)
 
 
 def val_in_range(val_name, val, vmin, vmax, silent=False):

@@ -1,10 +1,12 @@
 #!/usr/bin/env python3
-
+import os.path
 import sys
 import argparse
 import stretch_body.hello_utils as hu
 from stretch_diagnostics.test_manager import TestManager
 from stretch_diagnostics.test_order import test_order
+from stretch_diagnostics.test_helpers import extract_zip
+import click
 from colorama import Style
 
 hu.print_stretch_re_use()
@@ -14,6 +16,8 @@ parser.add_argument("--report", help="Report the latest diagnostic check", actio
 parser.add_argument("--zip", help="Generate zip file of latest diagnostic check", action="store_true")
 parser.add_argument("--archive", help="Archive old diagnostic test data", action="store_true")
 parser.add_argument("--menu", help="Run tests from command line menu", action="store_true")
+parser.add_argument("--unzip", type=str, metavar='zip file', nargs='?',
+                    help="Unzip the given stretch diagnostics zipped data and view report.")
 parser.add_argument("--list", type=int, metavar='verbosity', choices=[1, 2], nargs='?',
                     help="Lists all the available TestSuites and its included TestCases Ordered (Default verbosity=1)",
                     const=1)
@@ -52,6 +56,30 @@ def run_test_type(test_type):
         mgmt.run_suite()
 
 
+def unzip_print_test_status(zip_file):
+    dir_name = zip_file.split('.')[0]
+    id = zip_file.find("stretch-re")
+    stretch_id = zip_file[id:id+16]
+    if not os.path.isdir(dir_name):
+        os.system("mkdir {}".format(dir_name))
+    if os.path.isdir(dir_name):
+        print("Extracting {}...\n".format(zip_file))
+        extract_zip(zip_file, dir_name)
+    txt = "Diagnostics Tests Status"
+    print("=" * len(txt))
+    print(click.style("Robot: {}".format(stretch_id), bold=True))
+    print(click.style(txt, bold=True))
+    print("=" * len(txt))
+    for test_type in test_order:
+        tm = TestManager(test_type)
+        tm.results_directory = dir_name
+        print("\n")
+        tx = "{} Tests Status".format(test_type)
+        print(click.style(tx, bold=True))
+        print("-" * len(tx))
+        tm.print_status_report()
+
+
 if args.menu and len(sys.argv) < 3:
     print("The '--menu' tag must be provided with a test type. E.g. stretch_diagnostics_check.py --menu --simple")
     exit()
@@ -63,7 +91,6 @@ if args.menu and args.all:
 if (args.list and len(sys.argv) < 3) or (args.list and sys.argv[-1] == 'list'):
     print("The '--list' tag must be prefixed by a test type (E.g. stretch_diagnostics_check.py --simple --list)")
     exit()
-
 
 if args.archive:
     for t in test_order.keys():
@@ -87,6 +114,10 @@ if args.report:
     # mgmt = TestManager(test_type='simple')
     # mgmt.generate_last_diagnostic_report()
     print_report()
+
+if args.unzip:
+    fn = str(args.unzip)
+    unzip_print_test_status(zip_file=fn)
 
 if args.all:
     for t in test_order.keys():
