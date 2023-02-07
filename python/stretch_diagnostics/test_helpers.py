@@ -1,7 +1,7 @@
 from colorama import Fore, Style
 import os
 import glob
-
+import pkg_resources
 import click
 import pyrealsense2 as rs
 import stretch_factory.hello_device_utils as hdu
@@ -130,6 +130,16 @@ class Scope_Log_Sensor:
                 self.image_fn = None
             self.avg = sum(self.data) / len(self.data)
             return False
+
+
+def get_installed_package_info(find_specific=None):
+    packages = {}
+    for package in pkg_resources.working_set:
+        packages[package.key] = {"version": package.version,
+                                 "path": package.location}
+    if find_specific:
+        return packages[find_specific]
+    return packages
 
 
 def extract_zip(zip_file_path, extract_to_path):

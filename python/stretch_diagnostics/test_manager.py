@@ -10,7 +10,7 @@ import importlib
 from stretch_diagnostics.test_helpers import confirm
 import stretch_body.hello_utils as hu
 from stretch_diagnostics.test_runner import TestRunner
-from stretch_diagnostics.test_helpers import command_list_exec
+from stretch_diagnostics.test_helpers import command_list_exec, get_installed_package_info
 import click
 import glob
 from zipfile import ZipFile
@@ -20,7 +20,9 @@ class TestManager():
     def __init__(self, test_type):
         self.next_test_ready = False
         self.test_type = test_type
-        sys.path.append(os.path.expanduser('~/repos/stretch_diagnostics/python/%s_tests' % test_type))
+
+        self.pkg_tests_path = '{}/{}_tests'.format(get_installed_package_info('hello-robot-stretch-diagnostics')['path'], test_type)
+        sys.path.append(self.pkg_tests_path)
 
         # Get Fleet ID
         self.fleet_id = os.environ['HELLO_FLEET_ID']
