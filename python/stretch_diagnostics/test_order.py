@@ -20,7 +20,8 @@ test_order= {
         'test_SIMPLE_dynamixel_configure',
         'test_SIMPLE_accessories',
         'test_SIMPLE_software_packages',
-        'test_SIMPLE_filesystem'
+        'test_SIMPLE_filesystem',
+        'test_SIMPLE_capture_system'
         ],
     'power':[
         'test_POWER_charger',
