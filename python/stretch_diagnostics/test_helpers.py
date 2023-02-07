@@ -11,7 +11,8 @@ import socket
 from subprocess import Popen, PIPE, STDOUT
 from threading import Thread, Lock
 import zipfile
-
+import matplotlib.pyplot as plt
+from drawnow import drawnow
 
 class Dmesg_monitor:
     """
@@ -86,6 +87,29 @@ class Dmesg_monitor:
 
     def get_output_list(self):
         return self.output_list
+
+
+class Scope_Sensor_vs_Sensor:
+    """
+    Scope two sensor values against eachother
+    """
+    def __init__(self,yrange,title='Scope'):
+        plt.ion()  # enable interactivity
+        self.fig = plt.figure()
+        self.fig.canvas.set_window_title(title)
+        plt.ylim(yrange[0], yrange[1])
+        self.data_x = []
+        self.data_y = []
+    def step(self,sensor_value_x, sensor_value_y):
+        self.data_x.append(sensor_value_x)
+        self.data_y.append(sensor_value_y)
+        drawnow(self.make_fig)
+
+    def make_fig(self):
+        plt.plot(self.data_x, self.data_y, 'b')
+
+    def savefig(self,filename):
+        plt.savefig(filename)
 
 
 class Scope_Log_Sensor:

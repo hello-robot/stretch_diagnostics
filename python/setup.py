@@ -23,5 +23,5 @@ setuptools.setup(
         "Operating System :: OS Independent",
         "License :: OSI Approved :: GNU General Public License v3 (GPLv3)"
     ],
-    install_requires=['hello-robot-stretch-factory>=0.3.12','hello-robot-stretch-body>=0.4.14','stress','xmltodict']
+    install_requires=['hello-robot-stretch-factory>=0.3.12','hello-robot-stretch-body>=0.4.15','stress','xmltodict']
 )
