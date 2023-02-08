@@ -21,7 +21,7 @@ class TestManager():
         self.next_test_ready = False
         self.test_type = test_type
 
-        self.pkg_tests_path = '{}/{}_tests'.format(get_installed_package_info('hello-robot-stretch-diagnostics')['path'], test_type)
+        self.pkg_tests_path = '{}/stretch_diagnostics_tests/{}_tests'.format(get_installed_package_info('hello-robot-stretch-diagnostics')['path'], test_type)
         sys.path.append(self.pkg_tests_path)
 
         # Get Fleet ID
