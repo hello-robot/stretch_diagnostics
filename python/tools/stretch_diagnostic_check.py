@@ -33,6 +33,7 @@ group.add_argument("--gripper", help="Run diagnostics on the gripper subsystem",
 group.add_argument("--ros", help="Run diagnostics on the ROS packages", action="store_true")
 group.add_argument("--cpu", help="Run diagnostics on the CPU", action="store_true")
 group.add_argument("--arm", help="Run diagnostics on the Arm", action="store_true")
+group.add_argument("--lift", help="Run diagnostics on the Lift", action="store_true")
 group.add_argument("--all", help="Run all diagnostics", action="store_true")
 
 args = parser.parse_args()
@@ -183,6 +184,13 @@ if args.arm:
         mgmt.list_ordered_tests(verbosity=int(args.list))
     else:
         run_test_type('arm')
+
+if args.lift:
+    if args.list:
+        mgmt = TestManager(test_type='lift')
+        mgmt.list_ordered_tests(verbosity=int(args.list))
+    else:
+        run_test_type('lift')
 
 if args.cpu:
     if args.list:

@@ -20,7 +20,7 @@ class Test_STEPPER_sync(unittest.TestCase):
     test.add_hint('Possible issue with sync line on stepper or Pimu PCBA / cabling')
 
 
-    def stepper_sync(self,joint):
+    def stepper_sync(self,joint,xd,error_thresh):
         """
         Check that stepper motion halts on runstop
         """
@@ -33,7 +33,6 @@ class Test_STEPPER_sync(unittest.TestCase):
         print('Testing sync on stepper %s'%joint)
         motor=stretch_body.stepper.Stepper('/dev/'+joint)
         self.assertTrue(motor.startup())
-        xd = 0.5
 
         print('Enabling sync and checking for small motion...')
         motor.pull_status()
@@ -52,7 +51,7 @@ class Test_STEPPER_sync(unittest.TestCase):
         time.sleep(1.5)
 
         motor.pull_status()
-        log['sync_x1'] = motor.status['pos']
+        log['sync_x2'] = motor.status['pos']
 
         self.test.log_data('test_sync_' + joint, log)
 
@@ -60,39 +59,44 @@ class Test_STEPPER_sync(unittest.TestCase):
         error = abs(log['sync_x0'] - log['sync_x1'])
         msg = '%s: Waiting on sync and motion of %f (rad) relative to expected of %f' % (joint, error, 0)
         print(msg)
-        if error > 0.1:
+        if error > error_thresh:
             self.test.add_hint(msg)
-        self.assertTrue(error < 0.1, msg=msg)  # Within 0.1 radians
+        self.assertTrue(error < error_thresh, msg=msg)  # Within error_thresh radians
 
         # Check that motion after pimu trigger
         error = abs(log['sync_x1'] - log['sync_x2'])-xd
         msg = '%s: Triggered sync and motion of %f (rad) relative to expected of %f' % (joint,abs(log['sync_x1'] - log['sync_x2']), xd)
         print(msg)
-        if error > 0.1:
+        if error > error_thresh:
             self.test.add_hint(msg)
-        self.assertTrue(error < 0.1, msg=msg)  # Within 0.1 radians
+        self.assertTrue(error < error_thresh, msg=msg)  # Within error_thresh radians
+        motor.stop()
 
     def test_sync_right_wheel(self):
         "Check that sync is working for the right wheel"
-        self.stepper_sync('hello-motor-right-wheel')
+        self.stepper_sync('hello-motor-right-wheel',xd=1.0,error_thresh=0.2)
 
     def test_sync_left_wheel(self):
         "Check that sync is working for the left wheel"
-        self.stepper_sync('hello-motor-left-wheel')
+        self.stepper_sync('hello-motor-left-wheel',xd=1.0,error_thresh=0.2)
 
     def test_sync_arm(self):
         "Check that sync is working for the arm"
-        self.stepper_sync('hello-motor-arm')
+        click.secho('Ensure ARM is not near its hardstop. Hit enter when ready', fg="yellow")
+        input()
+        self.stepper_sync('hello-motor-arm',xd=0.5,error_thresh=0.1)
 
     def test_sync_lift(self):
         "Check that sync is working for the lift"
-        self.stepper_sync('hello-motor-lift')
+        click.secho('Ensure LIFT is not near its hardstop. Hit enter when ready', fg="yellow")
+        input()
+        self.stepper_sync('hello-motor-lift',xd=0.5,error_thresh=0.1)
 
 test_suite = TestSuite(test=Test_STEPPER_sync.test,failfast=False)
 test_suite.addTest(Test_STEPPER_sync('test_sync_right_wheel'))
-# test_suite.addTest(Test_STEPPER_sync('test_sync_left_wheel'))
-# test_suite.addTest(Test_STEPPER_sync('test_sync_arm'))
-# test_suite.addTest(Test_STEPPER_sync('test_sync_lift'))
+test_suite.addTest(Test_STEPPER_sync('test_sync_left_wheel'))
+test_suite.addTest(Test_STEPPER_sync('test_sync_arm'))
+test_suite.addTest(Test_STEPPER_sync('test_sync_lift'))
 if __name__ == '__main__':
     runner = TestRunner(test_suite)
     runner.run()

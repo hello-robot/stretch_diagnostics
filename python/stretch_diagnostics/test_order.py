@@ -43,9 +43,11 @@ test_order= {
         ],
      'stepper':[
          'test_STEPPER_calibration_data_match',
-         'test_STEPPER_runstop'#,
-         #'test_STEPPER_sync'
+         'test_STEPPER_runstop',
+         'test_STEPPER_sync'
          ],
+    'arm':['test_ARM_effort_through_range_of_motion'],
+    'lift': ['test_LIFT_effort_through_range_of_motion'],
     'realsense':[
         'test_REALSENSE_cable',
         'test_REALSENSE_frame_rate'

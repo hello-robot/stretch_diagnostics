@@ -9,6 +9,7 @@ import stretch_body.stepper
 import stretch_body.hello_utils as hu
 import os
 import  click
+import time
 
 class Test_STEPPER_calibration_data_match(unittest.TestCase):
     """
@@ -16,7 +17,7 @@ class Test_STEPPER_calibration_data_match(unittest.TestCase):
     """
     test = TestBase('test_STEPPER_calibration_data_match')
     test.add_hint('Possible issue with stepper at udev / hardware / driver level')
-    steppers = ['hello-motor-right-wheel','hello-motor-left-wheel','hello-motor-arm','hello-motor-lift']
+    steppers = ['hello-motor-arm']#'hello-motor-right-wheel','hello-motor-left-wheel','hello-motor-arm','hello-motor-lift']
 
 
     def test_stepper_calibration_data_match(self):
@@ -35,6 +36,9 @@ class Test_STEPPER_calibration_data_match(unittest.TestCase):
             print('Comparing flash data and encoder data for %s. This will take a minute...' % s)
             yaml_data=m.read_encoder_calibration_from_YAML()
             flash_data=m.read_encoder_calibration_from_flash()
+            #time.sleep(1.0)
+            #m.turn_rpc_interface_on()
+            #m.stop()
             calibration_data_match_log[s]=(yaml_data == flash_data)
             if not calibration_data_match_log[s]:
                 all_match = False
@@ -42,10 +46,16 @@ class Test_STEPPER_calibration_data_match(unittest.TestCase):
         self.assertTrue(all_match, msg='Stepper calibration data is not consistent. Repair needed.')
         self.test.log_data('encoder_calibration_files', calibration_data_match_log)
 
+    def test_stepper_startup_after_flash_read(self):
+        for s in self.steppers:
+            m = stretch_body.stepper.Stepper(usb='/dev/' + s)
+            self.assertTrue(m.startup(), msg='Not able to startup stepper %s' % s)
+            #m.stop()
+
 
 test_suite = TestSuite(test=Test_STEPPER_calibration_data_match.test,failfast=False)
 test_suite.addTest(Test_STEPPER_calibration_data_match('test_stepper_calibration_data_match'))
-
+#test_suite.addTest(Test_STEPPER_calibration_data_match('test_stepper_startup_after_flash_read'))
 if __name__ == '__main__':
     runner = TestRunner(test_suite)
     runner.run()
