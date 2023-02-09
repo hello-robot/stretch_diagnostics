@@ -165,8 +165,8 @@ class Test_REALSENSE_cable(unittest.TestCase):
         self.test.add_hint("Check for damaged realsense cable or electrical interferences.")
         robot = stretch_body.robot.Robot()
         input(click.style(
-            "Make sure the head is free to move without obstructions. Now the head would spin for 2 minutes. Press ENTER",
-            fg="blue", bold=True))
+            "Make sure the head is free to move without obstructions. The head will spin for 2 minutes. Press ENTER",
+            fg="yellow", bold=True))
         print("Started Head rotation....")
         self.assertTrue(robot.startup(), "Unable to startup the robot")
         scan_head_sequence(robot)

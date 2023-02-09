@@ -31,12 +31,15 @@ class Test_GRIPPER_broken_string(unittest.TestCase):
         ts = time.time()
         time.sleep(1.0)
         timeout = False
-        pos_log=[]
+        pos_log=[x0]
+
         while servo.motor.is_moving() and not timeout:
+            #print(servo.motor.is_moving())
             timeout = time.time() - ts > 10.0
-            time.sleep(0.5)
+            time.sleep(0.1)
             servo.pull_status()
             pos_log.append(servo.status['pos'])
+            print("Pos: %f"%servo.status['pos'])
         servo.stop()
         print('Test stopped at position %f (rad)'%pos_log[-1])
         print('Motion stopped in %f seconds'%(time.time()-ts))
