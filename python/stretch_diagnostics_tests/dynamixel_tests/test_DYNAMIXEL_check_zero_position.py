@@ -10,7 +10,7 @@ import stretch_body.dynamixel_XL430
 import stretch_body.stretch_gripper
 import time
 from stretch_body.hello_utils import deg_to_rad,rad_to_deg
-
+import click
 class Test_DYNAMIXEL_check_zero_position(unittest.TestCase):
     """
     Test Dynamixel range of motions match expectations
@@ -20,7 +20,7 @@ class Test_DYNAMIXEL_check_zero_position(unittest.TestCase):
     def check_zero_position(self,servo,joint,prompt):
         self.assertTrue(servo.do_ping(), msg='Not able to ping servo %s' % joint)
         servo.disable_torque()
-        print(prompt)
+        click.secho(prompt, fg="yellow")
         input()
         servo.pull_status()
         bad_zero = abs(servo.status['pos'])>deg_to_rad(10.0)

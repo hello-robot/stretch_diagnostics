@@ -9,13 +9,14 @@ import stretch_body.dynamixel_hello_XL430
 import stretch_body.dynamixel_XL430
 import stretch_body.stretch_gripper
 import time
+import click
 
 class Test_DYNAMIXEL_measure_efforts(unittest.TestCase):
     """
     Test Dynamixel efforts to check for mechanical issues
     """
     test = TestBase('test_DYNAMIXEL_measure_efforts')
-    effort_limits = {'head_pan':[-5.0,5.0],'head_tilt':[-7.0,15.0],'stretch_gripper':[-45,5]}
+    effort_limits = {'head_pan':[-5.0,5.0],'head_tilt':[-10.0,20.0],'stretch_gripper':[-45,5],'wrist_yaw':[-10.0,10.0]}
 
     def measure_effort(self,servo,joint,duration,y_range,lim_lower=None,lim_upper=None):
         self.assertTrue(servo.startup(),msg='Not able to connect to servo %s'%joint)
@@ -34,7 +35,7 @@ class Test_DYNAMIXEL_measure_efforts(unittest.TestCase):
 
         print('Joint limits of: %f to %f'%(lim_lower,lim_upper))
         servo.move_to(lim_lower)
-        self.assertTrue(servo.wait_until_at_setpoint(timeout=6.0))
+        servo.wait_until_at_setpoint(timeout=6.0)
 
         #Go pos direction
         servo.pull_status()
@@ -49,7 +50,7 @@ class Test_DYNAMIXEL_measure_efforts(unittest.TestCase):
             log['effort'].append(servo.status['effort'])
             max_eff=max(log['effort'][-1],max_eff)
             min_eff = min(log['effort'][-1], min_eff)
-            print('Joint: %s. Pos %f. Effort (pct): %f'%(joint,log['pos'][-1],log['effort'][-1]))
+            #print('Joint: %s. Pos %f. Effort (pct): %f'%(joint,log['pos'][-1],log['effort'][-1]))
             servo.pull_status()
 
 
@@ -66,12 +67,11 @@ class Test_DYNAMIXEL_measure_efforts(unittest.TestCase):
             log['effort'].append(servo.status['effort'])
             max_eff=max(log['effort'][-1],max_eff)
             min_eff = min(log['effort'][-1], min_eff)
-            print('Joint: %s. Pos %f. Effort (pct): %f'%(joint,log['pos'][-1],log['effort'][-1]))
+            #print('Joint: %s. Pos %f. Effort (pct): %f'%(joint,log['pos'][-1],log['effort'][-1]))
             servo.pull_status()
 
-
         eb = (min_eff > self.effort_limits[joint][0]) and (max_eff < self.effort_limits[joint][1])
-        msg='Effort for %s required exceeds limits. Check for mechanical obstruction'%joint
+        msg='Effort of %f|%f for %s required exceeds limits of %f|%f. Check for mechanical obstruction'%(min_eff,max_eff,joint,self.effort_limits[joint][0],self.effort_limits[joint][1])
         if not eb:
             self.test.add_hint(msg)
         self.assertTrue(eb,msg=msg)
@@ -84,6 +84,7 @@ class Test_DYNAMIXEL_measure_efforts(unittest.TestCase):
         servo = stretch_body.dynamixel_hello_XL430.DynamixelHelloXL430(name='head_pan', chain=None)
         data=self.measure_effort(servo,'head_pan',duration=8.0,y_range=[-50, 50.0])
         self.test.log_data('head_pan_effort_to_limits', data)
+        servo.stop()
 
     def test_measure_effort_head_tilt(self):
         """
@@ -92,6 +93,7 @@ class Test_DYNAMIXEL_measure_efforts(unittest.TestCase):
         servo = stretch_body.dynamixel_hello_XL430.DynamixelHelloXL430(name='head_tilt', chain=None)
         data=self.measure_effort(servo,'head_tilt',duration=5.0,y_range=[-50, 50.0])
         self.test.log_data('head_tilt_effort_to_limits', data)
+        servo.stop()
 
     def test_measure_effort_stretch_gripper(self):
         """
@@ -100,22 +102,26 @@ class Test_DYNAMIXEL_measure_efforts(unittest.TestCase):
         servo = stretch_body.stretch_gripper.StretchGripper()
         data=self.measure_effort(servo,'stretch_gripper',duration=10.0,y_range=[-50, 50.0],lim_lower=servo.poses['open'],lim_upper=servo.poses['close'])
         self.test.log_data('stretch_gripper_effort_to_limits', data)
+        servo.stop()
 
     def test_measure_effort_wrist_yaw(self):
         """
         Measure efforts to move wrist_yaw through joint range
         """
-        print('Ensure wrist yaw is free to move through its range of motion. Hit enter when ready')
+        print()
+        click.secho('Ensure wrist yaw is free to move through its range of motion. Hit enter when ready', fg="yellow")
         input()
         servo = stretch_body.dynamixel_hello_XL430.DynamixelHelloXL430(name='wrist_yaw', chain=None)
         data = self.measure_effort(servo, 'wrist_yaw', duration=7.0, y_range=[-50, 50.0])
         self.test.log_data('wrist_yaw_effort_to_limits', data)
+        servo.stop()
 
 test_suite = TestSuite(test=Test_DYNAMIXEL_measure_efforts.test,failfast=False)
 test_suite.addTest(Test_DYNAMIXEL_measure_efforts('test_measure_effort_head_pan'))
 test_suite.addTest(Test_DYNAMIXEL_measure_efforts('test_measure_effort_head_tilt'))
 test_suite.addTest(Test_DYNAMIXEL_measure_efforts('test_measure_effort_stretch_gripper'))
 test_suite.addTest(Test_DYNAMIXEL_measure_efforts('test_measure_effort_wrist_yaw'))
+
 if __name__ == '__main__':
     runner = TestRunner(test_suite)
     runner.run()

@@ -63,7 +63,8 @@ class Test_SIMPLE_software_packages(unittest.TestCase):
 
             self.assertEqual(installed_version, latest_version,
                              msg="run `{} install -U {}`".format(pip_str, pkg_name))
-            self.test.add_hint('Latest {} available | run `{} install -U {}`'.format(pkg_name, pip_str, pkg_name))
+            if installed_version!=latest_version:
+                self.test.add_hint('Latest {} available | run `{} install -U {}`'.format(pkg_name, pip_str, pkg_name))
 
         check_if_latest('hello-robot-stretch-body')
         check_if_latest('hello-robot-stretch-body-tools')
@@ -79,16 +80,26 @@ class Test_SIMPLE_software_packages(unittest.TestCase):
             self.test.log_data('ros-melodic-librealsense2', 'ros-melodic-librealsense2' in apt_list)
             self.assertTrue('ros-melodic-librealsense2' in apt_list)
             self.assertFalse(apt_list['ros-melodic-librealsense2'].is_installed)
+            if apt_list['ros-melodic-librealsense2'].is_installed:
+                self.test.add_hint('Library ros-melodic-librealsense2 is installed')
+
 
         if distro.version() == '20.04':
             self.test.log_data('ros-noetic-librealsense2', 'ros-noetic-librealsense2' in apt_list)
             self.assertTrue('ros-noetic-librealsense2' in apt_list)
+
+
+            if apt_list['ros-noetic-librealsense2'].is_installed:
+                self.test.add_hint('Library ros-noetic-librealsense2 is installed')
             self.assertFalse(apt_list['ros-noetic-librealsense2'].is_installed)
 
             self.test.log_data('ros-galactic-librealsense2', 'ros-galactic-librealsense2' in apt_list)
             self.assertTrue('ros-galactic-librealsense2' in apt_list)
-            self.assertFalse(apt_list['ros-galactic-librealsense2'].is_installed)
 
+
+            if apt_list['ros-galactic-librealsense2'].is_installed:
+                self.test.add_hint('Library ros-galactic-librealsense2 is installed')
+            self.assertFalse(apt_list['ros-galactic-librealsense2'].is_installed)
 
 test_suite = TestSuite(test=Test_SIMPLE_software_packages.test, failfast=False)
 test_suite.addTest(Test_SIMPLE_software_packages('test_check_internet'))
