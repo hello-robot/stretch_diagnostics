@@ -86,7 +86,7 @@ class Test_ROS_urdf(unittest.TestCase):
                      'tool_stretch_dex_wrist': ['stretch_dex_wrist.xacro'],
                      'tool_dry_erase_holder_v1': ['stretch_dry_erase_marker.xacro'],
                      'tool_reactor_wrist': [],
-                     'tool_usbcam_wrist': [],
+                     'tool_usbcam_wrist': ['stretch_wrist_USB_board_camera.xacro'],
                      }
 
         tool_xacro = tool_dict[tool]
@@ -129,7 +129,7 @@ class Test_ROS_urdf(unittest.TestCase):
                    'tool_stretch_dex_wrist': 'link_wrist_pitch',
                    'tool_dry_erase_holder_v1': 'link_dry_erase_holder',
                    'tool_reactor_wrist': '',
-                   'tool_usbcam_wrist': '',
+                   'tool_usbcam_wrist': 'link_wrist_USB_board_camera',
                    }
 
         tool_link = id_link[tool]
