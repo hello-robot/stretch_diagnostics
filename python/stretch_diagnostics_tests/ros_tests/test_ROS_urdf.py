@@ -11,7 +11,7 @@ from stretch_diagnostics.test_runner import TestRunner
 
 class Test_ROS_urdf(unittest.TestCase):
     """
-    Test to check if URDF file genereated for correct end-of-arm tool
+    Test to check if URDF file conforms with attached end-of-arm tool
     """
 
     test = TestBase('test_ROS_urdf')
@@ -45,8 +45,7 @@ class Test_ROS_urdf(unittest.TestCase):
         """
         
         tool, distro, urdf_path = self.get_param_distro_path()
-
-        tool_type = ['tool_stretch_gripper', 'tool_stretch_dex_wrist']
+        tool_type = ['tool_stretch_gripper', 'tool_stretch_dex_wrist', 'tool_dry_erase_holder_v1', 'tool_reactor_wrist', 'tool_usbcam_wrist']
         
         tool_valid = tool in tool_type
         
@@ -104,7 +103,7 @@ class Test_ROS_urdf(unittest.TestCase):
 
     def test_endofarm_urdf(self):
         """
-        Test if URDF file corresponds to the end-of-arm tool in stretch_params.yaml
+        Test if URDF file corresponds to the end-of-arm tool in params YAML
         """
 
         urdf_configured = False
