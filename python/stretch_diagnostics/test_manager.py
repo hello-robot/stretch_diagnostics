@@ -21,7 +21,8 @@ class TestManager():
         self.next_test_ready = False
         self.test_type = test_type
 
-        self.pkg_tests_path = '{}/stretch_diagnostics_tests/{}_tests'.format(get_installed_package_info('hello-robot-stretch-diagnostics')['path'], test_type)
+        self.pkg_tests_path = '{}/stretch_diagnostics_tests/{}_tests'.format(
+            get_installed_package_info('hello-robot-stretch-diagnostics')['path'], test_type)
         sys.path.append(self.pkg_tests_path)
 
         # Get Fleet ID
@@ -30,7 +31,8 @@ class TestManager():
         results_directory = os.environ['HELLO_FLEET_PATH'] + '/log/diagnostic_check'
         self.test_timestamp = hu.create_time_string()
         self.tests_order = test_order[test_type]
-        self.DiagnosticCheck_filename = 'diagnostic_check_%s_%s_%s.yaml' % (self.test_type, self.fleet_id,self.test_timestamp)
+        self.DiagnosticCheck_filename = 'diagnostic_check_%s_%s_%s.yaml' % (
+            self.test_type, self.fleet_id, self.test_timestamp)
         self.results_directory = results_directory
         self.system_health_dict = {'total_tests': 0,
                                    'total_tests_failed': 0,
@@ -141,9 +143,9 @@ class TestManager():
         for t in self.tests_order:
             self.run_test(t)
 
-    def run_menu(self):
+    def run_menu(self, show_subtests=False):
         while True:
-            self.print_status_report()
+            self.print_status_report(show_subtests)
             print(Style.BRIGHT + '############### MENU ################' + Style.RESET_ALL)
             print('Enter test # to run (q to quit)')
             print('A: archive tests')
@@ -191,20 +193,56 @@ class TestManager():
         else:
             return self.print_run_all_choices(test_i)
 
-    def print_status_report(self):
+    def print_subtests_status(self,result):
+        for stest in result['test_status']['subtests_status'].keys():
+            description = result['test_status']['subtests_status'][stest]['description']
+            status = result['test_status']['subtests_status'][stest]['status']
+            if status == 'PASS':
+                description = self.set_subtests_descripton(result, stest, status)
+                click.secho(f"\t\t[{status}] {stest}: {description}", fg="green")
+            else:
+                description = self.set_subtests_descripton(result,stest,status)
+                click.secho(f"\t\t[{status}] {stest}: {description}", fg="red")
+
+    def set_subtests_descripton(self,result,stest, status):
+        description = result['test_status']['subtests_status'][stest]['description']
+
+        if status == 'FAIL':
+            def parse_traceback(tb):
+                assertion_line = tb[-2]
+                tbl = assertion_line.split(':')
+                return tbl[-1]
+
+            for item in result['FAILS']:
+                k = list(item.keys())[0]
+                if k == stest:
+                    description = description + f"\n\t\t\tfailure: {parse_traceback(item[k])}"
+            for item in result['ERRORS']:
+                k = list(item.keys())[0]
+                if k == stest:
+                    description = description + f"\n\t\t\terror: {parse_traceback(item[k])}"
+        elif status == 'PASS':
+            pass
+        return description
+
+    def print_status_report(self,show_subtests=False):
         self.disable_print_warning = True
         self.disable_print_error = True
         i = 0
         for test_name in self.tests_order:
             result = self.read_latest_test_result(test_name)
             if not result:
-                click.secho('[%d] %s: Test result: N/A' % (i, test_name), fg="yellow")
+                print(click.style('[%d] %s: Test result: N/A' % (i, test_name), fg="yellow", bold=True))
             elif result['test_status']['status'] != 'SUCCESS':
-                click.secho('[%d] %s: Test result: FAIL' % (i, test_name,), fg="red")
-                for h in result['test_status']['hints']:
-                    click.secho('\t\tHINT: %s' % h, fg="red")
+                print(click.style('[%d] %s: Test result: FAIL' % (i, test_name,), fg="red", bold=True))
+                if show_subtests:
+                    self.print_subtests_status(result)
+                # for h in result['test_status']['hints']:
+                #     click.secho('\t\tHINT: %s' % h, fg="red")
             else:
-                click.secho('[%d] %s: Test result: PASS' % (i, test_name), fg="green")
+                print(click.style('[%d] %s: Test result: PASS' % (i, test_name), fg="green", bold=True))
+                if show_subtests:
+                    self.print_subtests_status(result)
             i = i + 1
         self.disable_print_warning = False
         self.disable_print_error = False
@@ -212,7 +250,7 @@ class TestManager():
     def generate_latest_zip_file(self, zip_file=None):
 
         if zip_file is None:
-            zip_file = self.results_directory + '/diagnostic_check_%s_%s.zip'%(self.fleet_id,self.test_timestamp)
+            zip_file = self.results_directory + '/diagnostic_check_%s_%s.zip' % (self.fleet_id, self.test_timestamp)
 
         # Pass in a zip file to append new tests
 

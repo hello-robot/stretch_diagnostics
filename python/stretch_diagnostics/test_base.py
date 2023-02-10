@@ -97,7 +97,7 @@ class TestBase():
             self.save_test_result(test_status={'status': 'SUCCESS',
                                                'errors': len(errors),
                                                'failures': len(failures),
-                                               'tests_ran': self.sub_tests_info,
+                                               'subtests_status': self.sub_tests_info,
                                                'hints': None})
             print(Style.RESET_ALL)
         else:
@@ -108,7 +108,7 @@ class TestBase():
             self.save_test_result(test_status={'status': 'FAIL',
                                                'errors': len(errors),
                                                'failures': len(failures),
-                                               'tests_ran': self.sub_tests_info,
+                                               'subtests_status': self.sub_tests_info,
                                                'hints': self.hints})
             print(Style.RESET_ALL)
 

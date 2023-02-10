@@ -45,14 +45,14 @@ def print_report(suite_names=None):
     for t in suite_names:
         print(Style.BRIGHT + '####################### %s TESTS #######################' % t.upper() + Style.RESET_ALL)
         system_check = TestManager(test_type=t)
-        system_check.print_status_report()
+        system_check.print_status_report(show_subtests=True)
         print('')
 
 
 def run_test_type(test_type):
     mgmt = TestManager(test_type=test_type)
     if args.menu:
-        mgmt.run_menu()
+        mgmt.run_menu(show_subtests=False)
     else:
         mgmt.run_suite()
 
@@ -109,6 +109,10 @@ if args.zip:
         zip_file = mgmt.generate_latest_zip_file(zip_file=zip_file)
     print('\n----------- Complete -------------')
     print('Zip file available at: %s' % zip_file)
+
+if args.report and len(sys.argv) > 2:
+    print("The '--report' can only be used alone.")
+    exit()
 
 if args.report:
     print(Style.BRIGHT + '############################## SUMMARY ###############################\n')
