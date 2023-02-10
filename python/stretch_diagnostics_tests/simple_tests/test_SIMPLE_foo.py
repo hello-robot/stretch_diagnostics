@@ -35,28 +35,48 @@ class Test_SIMPLE_foo(unittest.TestCase):
 
     def test_foo_1(self):
         """
-        Short Description : Test foo 1
+        Short Description of Test foo 1
 
         """
         # a = 10 * (1 / 0)
-        self.assertEqual(0, 0)
+
         self.test.log_params('param_key1', 'any value')
         self.test.log_data('data_key1', 100)
         if 1 > 0:
             self.test.add_hint("Foo 1 hint.")
+        self.assertEqual(1, 0)
 
     def test_foo_2(self):
         """
-        Short Description : Test foo 2
+        Short Description of Test foo 2
         """
-        self.assertEqual(0, 0)
         self.test.log_params('param_key2', {'val': 0})
+        self.assertTrue(False)
 
     def test_foo_3(self):
         """
-        Short Description : Test foo 3
+        Short Description of Test foo 3
         """
         self.assertTrue(96 > len('hello'))
+        print(self.test._non_existing_object)
+
+    def test_foo_4(self):
+        """
+        Short Description of Test foo 4
+        """
+        self.assertTrue(3 > len('hello'), "I have an error message")
+
+    def test_foo_5(self):
+        """
+        Short Description of Test foo 5
+        """
+        self.assertGreaterEqual(10, 10.5, "I have an error message")
+
+    def test_foo_6(self):
+        """
+        Short Description of Test foo 6
+        """
+        self.assertGreaterEqual(10, 10, "I have an error message")
 
 
 # Initialize you test suite with TestSuite(test,failfast)
@@ -69,6 +89,9 @@ test_suite = TestSuite(test=Test_SIMPLE_foo.test, failfast=False)
 test_suite.addTest(Test_SIMPLE_foo('test_foo_1'))
 test_suite.addTest(Test_SIMPLE_foo('test_foo_2'))
 test_suite.addTest(Test_SIMPLE_foo('test_foo_3'))
+test_suite.addTest(Test_SIMPLE_foo('test_foo_4'))
+test_suite.addTest(Test_SIMPLE_foo('test_foo_5'))
+test_suite.addTest(Test_SIMPLE_foo('test_foo_6'))
 
 if __name__ == '__main__':
     # Create a TestRunner object with TestRunner(suite,doc_verify_fail)
