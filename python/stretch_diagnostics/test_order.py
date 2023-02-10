@@ -27,11 +27,11 @@ test_order= {
         'test_POWER_charger',
         'test_POWER_battery_loading'
         ],
-    'cpu':[
-        'test_CPU_usage_temp',
-        ],
+    'cpu':['test_CPU_usage_temp'],
     'ros':[
         'test_ROS_sourced_distro',
+        'test_ROS_calibration',
+        'test_ROS_urdf'
         ],
     'dynamixel':[
         'test_DYNAMIXEL_measure_efforts',
