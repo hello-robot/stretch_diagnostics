@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 import unittest
 import os
+import shutil
 import xacro
 import xml.etree.ElementTree as ET
 from stretch_body import robot as rb
@@ -70,6 +71,8 @@ class Test_ROS_urdf(unittest.TestCase):
         if not xacro_exists:
             self.test.add_hint('{} does not exist.'.format(xacro_path))
             return
+        
+        shutil.copy(xacro_path, '{}/stretch_description.xacro'.format(self.test.results_directory))
 
         doc = xacro.parse(open(xacro_path))
         robot_description_config = doc.toxml()
@@ -116,6 +119,8 @@ class Test_ROS_urdf(unittest.TestCase):
         if not calibrated_urdf_exists:
             self.test.add_hint('{} does not exist.'.format(calibrated_urdf_path))
             return
+
+        shutil.copy(calibrated_urdf_path, '{}/stretch.urdf'.format(self.test.results_directory))
 
         link_list = [] # Stores list of links in URDF
         tree = ET.parse(calibrated_urdf_path)
