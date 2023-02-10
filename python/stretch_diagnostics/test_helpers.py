@@ -36,7 +36,6 @@ class Dmesg_monitor:
         self.lock = Lock()
         self.print_new_msg = print_new_msg
         self.log_fn = log_fn
-        print("Starting DMESG capture....")
         os.system("sudo echo ''")
 
     def dmesg_fetch_clear(self):
@@ -63,6 +62,7 @@ class Dmesg_monitor:
         print("DMESG Log saved to: {}".format(self.log_fn))
 
     def start(self):
+        print("Starting DMESG capture....")
         self.is_live = True
         self.thread = Thread(target=self.live)
         self.thread.start()

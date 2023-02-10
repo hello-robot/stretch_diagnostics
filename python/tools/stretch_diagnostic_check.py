@@ -78,7 +78,7 @@ def unzip_print_test_status(zip_file):
         tx = "{} Tests Status".format(test_type)
         print(click.style(tx, bold=True))
         print("-" * len(tx))
-        tm.print_status_report()
+        tm.print_status_report(show_subtests=True)
 
 
 if args.menu and len(sys.argv) < 3:

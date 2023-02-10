@@ -96,8 +96,8 @@ class TestManager():
             listOfFiles = glob.glob(self.results_directory + '/' + test_name + '/' + test_name + '*.yaml')
             listOfFiles.sort()
             return listOfFiles[-1]
-        except:
-            self.print_error('Unable to find latest Result of {}'.format(test_name))
+        except Exception as e:
+            # self.print_warning('{} result file not found'.format(test_name))
             return None
 
     def read_latest_test_result(self, test_name):
@@ -107,8 +107,8 @@ class TestManager():
             with open(listOfFiles[-1]) as f:
                 result = yaml.safe_load(f)
             return result
-        except:
-            self.print_error('Unable to Load latest Result of {}'.format(test_name))
+        except Exception as e:
+            self.print_warning('{} result not found or not performed'.format(test_name))
             return None
 
     def run_all_test(self):
