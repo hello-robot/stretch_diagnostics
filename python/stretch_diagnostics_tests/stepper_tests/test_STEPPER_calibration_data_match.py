@@ -17,7 +17,7 @@ class Test_STEPPER_calibration_data_match(unittest.TestCase):
     """
     test = TestBase('test_STEPPER_calibration_data_match')
     test.add_hint('Possible issue with stepper at udev / hardware / driver level')
-    steppers = ['hello-motor-arm']#'hello-motor-right-wheel','hello-motor-left-wheel','hello-motor-arm','hello-motor-lift']
+    steppers = ['hello-motor-arm','hello-motor-right-wheel','hello-motor-left-wheel','hello-motor-arm','hello-motor-lift']
 
 
     def test_stepper_calibration_data_match(self):
