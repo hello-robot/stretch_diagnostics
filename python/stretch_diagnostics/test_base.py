@@ -4,6 +4,7 @@ import stretch_body.hello_utils as hu
 import yaml
 from colorama import Fore, Style
 
+
 class TestBase():
     def __init__(self, test_name):
         print(Style.BRIGHT + '{}'.format(test_name))
@@ -13,15 +14,16 @@ class TestBase():
         self.test_name = test_name
         self.fleet_id = os.environ['HELLO_FLEET_ID']
 
-        results_directory =os.environ['HELLO_FLEET_PATH']+'/log/diagnostic_check'#+self.timestamp
+        results_directory = os.environ['HELLO_FLEET_PATH'] + '/log/diagnostic_check'  # +self.timestamp
 
         os.system('mkdir -p %s' % results_directory)
         self.results_directory = results_directory
         self.results_directory_test_specific = self.results_directory + '/' + test_name
-        self.hints=[]
+        self.hints = []
         self.params_dict = {}
         self.data_dict = {}
         self.test_status = {}
+        self.sub_tests_info = {}
 
         self.result_data_dict = {'params': None,
                                  'test_status': None,
@@ -30,7 +32,7 @@ class TestBase():
                                  'ERRORS': None}
         self.check_test_results_directories()
 
-    def add_hint(self,hint):
+    def add_hint(self, hint):
         self.hints.append(hint)
 
     def check_test_results_directories(self):
@@ -77,10 +79,12 @@ class TestBase():
     def parse_TestErrors(self, failures):
         fails = []
         for f in failures:
-            test_id = str(f[0].id())
+            test_id = str(f[0].id().split('.')[2])
             out = str(f[1])
             out_lines = out.split('\n')
             fails.append({test_id: out_lines})
+            if test_id in self.sub_tests_info.keys():
+                self.sub_tests_info[test_id]['status'] = 'FAIL'
         return fails
 
     def save_TestResult(self, result):
@@ -93,6 +97,7 @@ class TestBase():
             self.save_test_result(test_status={'status': 'SUCCESS',
                                                'errors': len(errors),
                                                'failures': len(failures),
+                                               'tests_ran': self.sub_tests_info,
                                                'hints': None})
             print(Style.RESET_ALL)
         else:
@@ -103,7 +108,8 @@ class TestBase():
             self.save_test_result(test_status={'status': 'FAIL',
                                                'errors': len(errors),
                                                'failures': len(failures),
-                                                'hints':self.hints})
+                                               'tests_ran': self.sub_tests_info,
+                                               'hints': self.hints})
             print(Style.RESET_ALL)
 
     def move_misc_file(self, file_key, filename):
@@ -112,4 +118,3 @@ class TestBase():
         filename_ts = ff[0] + '_' + self.timestamp + '.' + ff[-1]
         os.system('mv {} {}/{}/{}'.format(filename, self.results_directory, self.test_name, filename_ts))
         self.log_data(file_key, filename_ts)
-

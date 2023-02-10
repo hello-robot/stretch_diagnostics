@@ -5,6 +5,7 @@ import yaml
 from colorama import Fore, Style
 from stretch_diagnostics.test_result import TestResult
 
+
 class TestRunner(unittest.TextTestRunner):
     resultclass = TestResult
 
@@ -40,9 +41,15 @@ class TestRunner(unittest.TextTestRunner):
             if self._suite_verify_doc_fail():
                 print(Fore.RED + 'Stopping Test Run' + Style.RESET_ALL)
                 return
+        sub_tests_info = {}
+        for t in self.suite._tests:
+            if t.shortDescription():
+                sub_tests_info[t.id().split('.')[2]] = {'description': t.shortDescription(), 'status': 'PASS'}
+            else:
+                sub_tests_info[t.id().split('.')[2]] = {'description': None, 'status': 'PASS'}
         result = super(TestRunner, self).run(self.suite)
-        # result = super().run(self.suite)
         if self.suite.test:
+            self.suite.test.sub_tests_info = sub_tests_info
             self.suite.test.save_TestResult(result)
         else:
             print(
@@ -50,5 +57,3 @@ class TestRunner(unittest.TextTestRunner):
             print(
                 'Add test object while initializing  "test_suite = TestSuite(Test_XXX_foo.test)" ' + Style.RESET_ALL)
         return result
-
-
