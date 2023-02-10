@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 import unittest
 import os
-import subprocess
 from stretch_diagnostics.test_base import TestBase
 from stretch_diagnostics.test_suite import TestSuite
 from stretch_diagnostics.test_runner import TestRunner
@@ -12,7 +11,6 @@ class Test_ROS_calibration(unittest.TestCase):
     Test to check if calibrated urdf and head calibration file exist in workspace.
     """
 
-    # test object is always expected within a TestCase Class
     test = TestBase('test_ROS_calibration')
 
     @classmethod
@@ -45,12 +43,12 @@ class Test_ROS_calibration(unittest.TestCase):
         elif ros_distro in ['galactic', 'humble']:
             head_calibration_path = '{0}/{1}'.format(home_path, yaml_ament_ws)
         else:
-            self.add_hint("No ROS distro sourced. Source ROS in the ~/.bashrc file.")
+            self.test.add_hint("No ROS distro sourced. Source ROS in the ~/.bashrc file.")
         
         head_calibration_exists = os.path.exists(head_calibration_path)
 
         if not head_calibration_exists:
-            self.add_hint("Could not find head calibration file {}.".format(head_calibration_path))
+            self.test.add_hint("Could not find head calibration file {}.".format(head_calibration_path))
         
         self.test.log_data('head_calibration_exists', head_calibration_exists)
         self.assertTrue(head_calibration_exists)
@@ -70,12 +68,12 @@ class Test_ROS_calibration(unittest.TestCase):
         elif ros_distro in ['galactic', 'humble']:
             calibrated_urdf_path = '{0}/{1}'.format(home_path, urdf_ament_ws)
         else:
-            self.add_hint("No ROS distro sourced. Source ROS in the ~/.bashrc file.")
+            self.test.add_hint("No ROS distro sourced. Source ROS in the ~/.bashrc file.")
         
         calibrated_urdf_exists = os.path.exists(calibrated_urdf_path)
 
         if not calibrated_urdf_exists:
-            self.add_hint("Could not find calibrated URDF file {}.".format(calibrated_urdf_path))
+            self.test.add_hint("Could not find calibrated URDF file {}.".format(calibrated_urdf_path))
         
         self.test.log_data('calibrated_urdf_exists', calibrated_urdf_exists)
         self.assertTrue(calibrated_urdf_exists)

@@ -12,7 +12,6 @@ class Test_ROS_sourced_distro(unittest.TestCase):
     Test to check if correct ROS distro and workspace are sourced in the .bashrc file.
     """
 
-    # test object is always expected within a TestCase Class
     test = TestBase('test_ROS_sourced_distro')
 
     def test_ros_install(self):
