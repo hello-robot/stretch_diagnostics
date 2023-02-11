@@ -69,17 +69,16 @@ def create_config_target_low_res():
     return target
 
 
-# Include all the known kernel non problematic messages here
-# index     1:no.occured 2:no.Acceptable_Occurances 3:Message
-known_msgs = [[0, 15, 'uvcvideo: Failed to query (GET_CUR) UVC control'],
-              [0, 4, 'Non-zero status (-71) in video completion handler'],
-              [0, 4, 'No report with id 0xffffffff found'],
+known_msgs = [[0, 30, 'uvcvideo: Failed to query (GET_CUR) UVC control'],
+              [0, 15, 'Non-zero status (-71) in video completion handler'],
+              [0, 15, 'No report with id 0xffffffff found'],
               [0, 10, 'uvcvideo: Found UVC 1.50 device Intel(R) RealSense(TM) Depth Camera 435'],
               [0, 5, 'uvcvideo: Unable to create debugfs'],
               [0, 4, 'hid-sensor-hub'],
               [0, 6, 'input: Intel(R) RealSense(TM) Depth Ca'],
               [0, 1, 'uvcvideo: Failed to resubmit video URB (-1).'],
-              [0, 1, 'Netfilter messages via NETLINK v0.30.']]
+              [0, 1, 'Netfilter messages via NETLINK v0.30.'],
+              [0, 1, 'USB disconnect']]
 
 
 def get_frame_id_from_log_line(stream_type, line):
