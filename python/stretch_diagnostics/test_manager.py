@@ -10,7 +10,7 @@ import importlib
 from stretch_diagnostics.test_helpers import confirm
 import stretch_body.hello_utils as hu
 from stretch_diagnostics.test_runner import TestRunner
-from stretch_diagnostics.test_helpers import command_list_exec, get_installed_package_info
+from stretch_diagnostics.test_helpers import command_list_exec, get_installed_package_info, center_string
 import click
 import glob
 from zipfile import ZipFile
@@ -149,7 +149,7 @@ class TestManager():
             print(Style.BRIGHT + '############### MENU ################' + Style.RESET_ALL)
             print('Enter test # to run (q to quit)')
             print('A: archive tests')
-            print('---------------------------------------')
+            print('-------------------------------------')
             try:
                 r = input()
                 if r == 'q' or r == 'Q':
@@ -157,15 +157,15 @@ class TestManager():
                 elif r == 'A':
                     self.archive_all_tests_status()
                     print('Resetting All Tests')
-                    print('---------------------------------------')
+                    print('-------------------------------------')
                 else:
                     n = int(r)
-                    if n >= 0 and n < len(self.tests_order):
+                    if 0 <= n < len(self.tests_order):
                         test_name = self.tests_order[n]
                         print('Running test: %s' % test_name)
                         print('')
                         self.run_test(test_name)
-                        print('############ TEST COMPLETE #####################')
+                        print('########### TEST COMPLETE ##########\n')
                     else:
                         print('Invalid entry')
             except(TypeError, ValueError):
@@ -211,6 +211,8 @@ class TestManager():
             def parse_traceback(tb):
                 assertion_line = tb[-2]
                 tbl = assertion_line.split(':')
+                if len(tbl) > 3:
+                    return f"{tbl[-2]}:{tbl[-1]}"
                 return tbl[-1]
 
             for item in result['FAILS']:
@@ -237,8 +239,6 @@ class TestManager():
                 print(click.style('[%d] %s: Test result: FAIL' % (i, test_name,), fg="red", bold=True))
                 if show_subtests:
                     self.print_subtests_status(result)
-                # for h in result['test_status']['hints']:
-                #     click.secho('\t\tHINT: %s' % h, fg="red")
             else:
                 print(click.style('[%d] %s: Test result: PASS' % (i, test_name), fg="green", bold=True))
                 if show_subtests:

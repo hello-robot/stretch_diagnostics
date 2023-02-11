@@ -14,6 +14,7 @@ import zipfile
 import matplotlib.pyplot as plt
 from drawnow import drawnow
 
+
 class Dmesg_monitor:
     """
     Run live dmesg fetching in the backgorund using threading. Query the collected dmesg message
@@ -93,14 +94,16 @@ class Scope_Sensor_vs_Sensor:
     """
     Scope two sensor values against eachother
     """
-    def __init__(self,yrange,title='Scope'):
+
+    def __init__(self, yrange, title='Scope'):
         plt.ion()  # enable interactivity
         self.fig = plt.figure()
         self.fig.canvas.set_window_title(title)
         plt.ylim(yrange[0], yrange[1])
         self.data_x = []
         self.data_y = []
-    def step(self,sensor_value_x, sensor_value_y):
+
+    def step(self, sensor_value_x, sensor_value_y):
         self.data_x.append(sensor_value_x)
         self.data_y.append(sensor_value_y)
         drawnow(self.make_fig)
@@ -108,7 +111,7 @@ class Scope_Sensor_vs_Sensor:
     def make_fig(self):
         plt.plot(self.data_x, self.data_y, 'b')
 
-    def savefig(self,filename):
+    def savefig(self, filename):
         plt.savefig(filename)
 
 
@@ -344,3 +347,9 @@ def check_internet():
     except OSError:
         pass
     return False
+
+
+def center_string(text, length=75, ch=' '):
+    prefix_n = ((length - len(text)) // 2) - 1
+    suffix_n = (length - len(text) - prefix_n) - 1
+    return f"{ch * prefix_n} {text} {ch * suffix_n}"
