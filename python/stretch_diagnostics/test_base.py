@@ -1,4 +1,5 @@
 import unittest
+import warnings
 import os
 import stretch_body.hello_utils as hu
 import yaml
@@ -19,7 +20,6 @@ class TestBase():
         os.system('mkdir -p %s' % results_directory)
         self.results_directory = results_directory
         self.results_directory_test_specific = self.results_directory + '/' + test_name
-        self.hints = []
         self.params_dict = {}
         self.data_dict = {}
         self.test_status = {}
@@ -33,7 +33,7 @@ class TestBase():
         self.check_test_results_directories()
 
     def add_hint(self, hint):
-        self.hints.append(hint)
+        warnings.warn('Adding hints to tests is deprecated.', DeprecationWarning)
 
     def check_test_results_directories(self):
         # self.update_production_repo()
@@ -97,8 +97,7 @@ class TestBase():
             self.save_test_result(test_status={'status': 'SUCCESS',
                                                'errors': len(errors),
                                                'failures': len(failures),
-                                               'subtests_status': self.sub_tests_info,
-                                               'hints': None})
+                                               'subtests_status': self.sub_tests_info})
             print(Style.RESET_ALL)
         else:
             print(Fore.RED)
@@ -108,8 +107,7 @@ class TestBase():
             self.save_test_result(test_status={'status': 'FAIL',
                                                'errors': len(errors),
                                                'failures': len(failures),
-                                               'subtests_status': self.sub_tests_info,
-                                               'hints': self.hints})
+                                               'subtests_status': self.sub_tests_info})
             print(Style.RESET_ALL)
 
     def move_misc_file(self, file_key, filename):
