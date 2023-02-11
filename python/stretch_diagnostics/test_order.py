@@ -6,7 +6,6 @@ The dictionary "test_order" should have all the robot batch specific test lists.
 
 test_order= {
     'simple':[
-        'test_SIMPLE_foo',
         'test_SIMPLE_wifi',
         'test_SIMPLE_params',
         'test_SIMPLE_stretch_body_background',

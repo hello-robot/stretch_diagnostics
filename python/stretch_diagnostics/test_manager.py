@@ -204,7 +204,7 @@ class TestManager():
                 description = self.set_subtests_descripton(result,stest,status)
                 click.secho(f"\t\t[{status}] {stest}: {description}", fg="red")
 
-    def set_subtests_descripton(self,result,stest, status):
+    def set_subtests_descripton(self, result, stest, status):
         description = result['test_status']['subtests_status'][stest]['description']
 
         if status == 'FAIL':

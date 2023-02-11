@@ -33,7 +33,7 @@ class TestBase():
         self.check_test_results_directories()
 
     def add_hint(self, hint):
-        warnings.warn('Adding hints to tests is deprecated.', DeprecationWarning)
+        warnings.warn('Adding hints to tests is deprecated.', DeprecationWarning, stacklevel=1)
 
     def check_test_results_directories(self):
         # self.update_production_repo()
@@ -104,11 +104,11 @@ class TestBase():
             print('{} errors and {} failures so far'.format(len(errors), len(failures)))
             self.log_errors(errors)
             self.log_fails(failures)
+            print(Style.RESET_ALL)
             self.save_test_result(test_status={'status': 'FAIL',
                                                'errors': len(errors),
                                                'failures': len(failures),
                                                'subtests_status': self.sub_tests_info})
-            print(Style.RESET_ALL)
 
     def move_misc_file(self, file_key, filename):
         ff = filename.split('.')
