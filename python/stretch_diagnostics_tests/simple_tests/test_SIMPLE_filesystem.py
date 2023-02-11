@@ -16,15 +16,11 @@ class Test_SIMPLE_filesystem(unittest.TestCase):
     def check_dir_paths(self, file_dir_list):
         for f in file_dir_list:
             check = os.path.isdir(os.path.expanduser(f))
-            if not check:
-                self.test.add_hint("Directory not found : {}".format(f))
             self.assertTrue(check, "Directory not found : {}".format(f))
 
     def check_file_paths(self, file_path_list):
         for f in file_path_list:
             check = os.path.isfile(os.path.expanduser(f))
-            if not check:
-                self.test.add_hint("File not found : {}".format(f))
             self.assertTrue(check, "File not found : {}".format(f))
 
     def test_check_stretch_user_files(self):
@@ -50,7 +46,6 @@ class Test_SIMPLE_filesystem(unittest.TestCase):
         self.check_dir_paths(dirs)
         self.check_file_paths(files)
 
-
     def test_udev_files(self):
         """
         verify if all the udev files copied during stretch install is present
@@ -74,7 +69,6 @@ class Test_SIMPLE_filesystem(unittest.TestCase):
                  "/bin/hello_robot_pimu_ping.sh",
                  "/bin/hello_robot_xbox_teleop.sh"]
         self.check_file_paths(files)
-
 
     def test_etc_files(self):
         """

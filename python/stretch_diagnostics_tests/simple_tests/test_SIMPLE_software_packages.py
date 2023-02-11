@@ -12,6 +12,24 @@ import click
 import apt
 
 
+def get_installed_package_versions(find_specific=None):
+    packages = {}
+    for package in pkg_resources.working_set:
+        packages[package.key] = package.version
+    if find_specific:
+        return packages[find_specific]
+    return packages
+
+
+def get_latest_package_version(package_name):
+    response = requests.get(f"https://pypi.org/pypi/{package_name}/json")
+    if response.status_code == 200:
+        data = response.json()
+        return data["info"]["version"]
+    else:
+        return None
+
+
 class Test_SIMPLE_software_packages(unittest.TestCase):
     """
     Test USB Devices on Bus
@@ -27,49 +45,44 @@ class Test_SIMPLE_software_packages(unittest.TestCase):
                               fg='yellow', bold=True))
         self.assertTrue(check_internet(), " Robot not connected to the Internet. Connect the robot")
 
-    def test_latest_hello_pip_packages(self):
-        """
-        Stretch Python libraries up-to-date
-        """
+    def check_if_latest(self, pkg_name):
         ubuntu_to_pip_mapping = {'18.04': 'pip2', '20.04': 'pip3'}
         pip_str = ubuntu_to_pip_mapping[distro.version()]
 
-        self.test.log_data("ubuntu_version", distro.version())
+        installed_version = get_installed_package_versions(pkg_name)
+        latest_version = get_latest_package_version(pkg_name)
 
-        def get_installed_package_versions(find_specific=None):
-            packages = {}
-            for package in pkg_resources.working_set:
-                packages[package.key] = package.version
-            if find_specific:
-                return packages[find_specific]
-            return packages
+        print("Found {} : current_version={} | latest_version={}".format(pkg_name, installed_version,
+                                                                         latest_version))
+        self.test.log_params("latest_{}_version".format(pkg_name), latest_version)
+        self.test.log_data("installed_{}_version".format(pkg_name), installed_version)
 
-        def get_latest_package_version(package_name):
-            response = requests.get(f"https://pypi.org/pypi/{package_name}/json")
-            if response.status_code == 200:
-                data = response.json()
-                return data["info"]["version"]
-            else:
-                return None
+        self.assertEqual(installed_version, latest_version,
+                         msg=f"Newer version v{latest_version} available | run `{pip_str} install -U {pkg_name}`")
 
-        def check_if_latest(pkg_name):
-            installed_version = get_installed_package_versions(pkg_name)
-            latest_version = get_latest_package_version(pkg_name)
+    def test_stretch_body(self):
+        """
+        Test stretch body package version
+        """
+        self.check_if_latest('hello-robot-stretch-body')
 
-            print("Found {} : current_version={} | latest_version={}".format(pkg_name, installed_version,
-                                                                             latest_version))
-            self.test.log_params("latest_{}_version".format(pkg_name), latest_version)
-            self.test.log_data("installed_{}_version".format(pkg_name), installed_version)
+    def test_stretch_body_tools(self):
+        """
+        Test stretch body tools package version
+        """
+        self.check_if_latest('hello-robot-stretch-body-tools')
 
-            self.assertEqual(installed_version, latest_version,
-                             msg="run `{} install -U {}`".format(pip_str, pkg_name))
-            if installed_version!=latest_version:
-                self.test.add_hint('Latest {} available | run `{} install -U {}`'.format(pkg_name, pip_str, pkg_name))
+    def test_stretch_factory(self):
+        """
+        Test stretch factory package version
+        """
+        self.check_if_latest('hello-robot-stretch-factory')
 
-        check_if_latest('hello-robot-stretch-body')
-        check_if_latest('hello-robot-stretch-body-tools')
-        check_if_latest('hello-robot-stretch-factory')
-        check_if_latest('hello-robot-stretch-tool-share')
+    def test_stretch_tool_share(self):
+        """
+        Test stretch tool share package version
+        """
+        self.check_if_latest('hello-robot-stretch-tool-share')
 
     def test_realsense_sw_configuration(self):
         """
@@ -83,11 +96,9 @@ class Test_SIMPLE_software_packages(unittest.TestCase):
             if apt_list['ros-melodic-librealsense2'].is_installed:
                 self.test.add_hint('Library ros-melodic-librealsense2 is installed')
 
-
         if distro.version() == '20.04':
             self.test.log_data('ros-noetic-librealsense2', 'ros-noetic-librealsense2' in apt_list)
             self.assertTrue('ros-noetic-librealsense2' in apt_list)
-
 
             if apt_list['ros-noetic-librealsense2'].is_installed:
                 self.test.add_hint('Library ros-noetic-librealsense2 is installed')
@@ -96,14 +107,17 @@ class Test_SIMPLE_software_packages(unittest.TestCase):
             self.test.log_data('ros-galactic-librealsense2', 'ros-galactic-librealsense2' in apt_list)
             self.assertTrue('ros-galactic-librealsense2' in apt_list)
 
-
             if apt_list['ros-galactic-librealsense2'].is_installed:
                 self.test.add_hint('Library ros-galactic-librealsense2 is installed')
             self.assertFalse(apt_list['ros-galactic-librealsense2'].is_installed)
 
+
 test_suite = TestSuite(test=Test_SIMPLE_software_packages.test, failfast=False)
 test_suite.addTest(Test_SIMPLE_software_packages('test_check_internet'))
-test_suite.addTest(Test_SIMPLE_software_packages('test_latest_hello_pip_packages'))
+test_suite.addTest(Test_SIMPLE_software_packages('test_stretch_body'))
+test_suite.addTest(Test_SIMPLE_software_packages('test_stretch_body_tools'))
+test_suite.addTest(Test_SIMPLE_software_packages('test_stretch_factory'))
+test_suite.addTest(Test_SIMPLE_software_packages('test_stretch_tool_share'))
 test_suite.addTest(Test_SIMPLE_software_packages('test_realsense_sw_configuration'))
 
 if __name__ == '__main__':

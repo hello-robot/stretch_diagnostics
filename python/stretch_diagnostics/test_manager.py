@@ -10,7 +10,7 @@ import importlib
 from stretch_diagnostics.test_helpers import confirm
 import stretch_body.hello_utils as hu
 from stretch_diagnostics.test_runner import TestRunner
-from stretch_diagnostics.test_helpers import command_list_exec, get_installed_package_info
+from stretch_diagnostics.test_helpers import command_list_exec, get_installed_package_info, center_string
 import click
 import glob
 from zipfile import ZipFile
@@ -21,7 +21,8 @@ class TestManager():
         self.next_test_ready = False
         self.test_type = test_type
 
-        self.pkg_tests_path = '{}/stretch_diagnostics_tests/{}_tests'.format(get_installed_package_info('hello-robot-stretch-diagnostics')['path'], test_type)
+        self.pkg_tests_path = '{}/stretch_diagnostics_tests/{}_tests'.format(
+            get_installed_package_info('hello-robot-stretch-diagnostics')['path'], test_type)
         sys.path.append(self.pkg_tests_path)
 
         # Get Fleet ID
@@ -30,7 +31,8 @@ class TestManager():
         results_directory = os.environ['HELLO_FLEET_PATH'] + '/log/diagnostic_check'
         self.test_timestamp = hu.create_time_string()
         self.tests_order = test_order[test_type]
-        self.DiagnosticCheck_filename = 'diagnostic_check_%s_%s_%s.yaml' % (self.test_type, self.fleet_id,self.test_timestamp)
+        self.DiagnosticCheck_filename = 'diagnostic_check_%s_%s_%s.yaml' % (
+            self.test_type, self.fleet_id, self.test_timestamp)
         self.results_directory = results_directory
         self.system_health_dict = {'total_tests': 0,
                                    'total_tests_failed': 0,
@@ -94,8 +96,8 @@ class TestManager():
             listOfFiles = glob.glob(self.results_directory + '/' + test_name + '/' + test_name + '*.yaml')
             listOfFiles.sort()
             return listOfFiles[-1]
-        except:
-            self.print_error('Unable to find latest Result of {}'.format(test_name))
+        except Exception as e:
+            # self.print_warning('{} result file not found'.format(test_name))
             return None
 
     def read_latest_test_result(self, test_name):
@@ -105,8 +107,8 @@ class TestManager():
             with open(listOfFiles[-1]) as f:
                 result = yaml.safe_load(f)
             return result
-        except:
-            self.print_error('Unable to Load latest Result of {}'.format(test_name))
+        except Exception as e:
+            self.print_warning('{} result not found or not performed'.format(test_name))
             return None
 
     def run_all_test(self):
@@ -141,13 +143,13 @@ class TestManager():
         for t in self.tests_order:
             self.run_test(t)
 
-    def run_menu(self):
+    def run_menu(self, show_subtests=False):
         while True:
-            self.print_status_report()
+            self.print_status_report(show_subtests)
             print(Style.BRIGHT + '############### MENU ################' + Style.RESET_ALL)
             print('Enter test # to run (q to quit)')
             print('A: archive tests')
-            print('---------------------------------------')
+            print('-------------------------------------')
             try:
                 r = input()
                 if r == 'q' or r == 'Q':
@@ -155,15 +157,15 @@ class TestManager():
                 elif r == 'A':
                     self.archive_all_tests_status()
                     print('Resetting All Tests')
-                    print('---------------------------------------')
+                    print('-------------------------------------')
                 else:
                     n = int(r)
-                    if n >= 0 and n < len(self.tests_order):
+                    if 0 <= n < len(self.tests_order):
                         test_name = self.tests_order[n]
                         print('Running test: %s' % test_name)
                         print('')
                         self.run_test(test_name)
-                        print('############ TEST COMPLETE #####################')
+                        print('########### TEST COMPLETE ##########\n')
                     else:
                         print('Invalid entry')
             except(TypeError, ValueError):
@@ -191,20 +193,56 @@ class TestManager():
         else:
             return self.print_run_all_choices(test_i)
 
-    def print_status_report(self):
+    def print_subtests_status(self,result):
+        for stest in result['test_status']['subtests_status'].keys():
+            description = result['test_status']['subtests_status'][stest]['description']
+            status = result['test_status']['subtests_status'][stest]['status']
+            if status == 'PASS':
+                description = self.set_subtests_descripton(result, stest, status)
+                click.secho(f"\t\t[{status}] {stest}: {description}", fg="green")
+            else:
+                description = self.set_subtests_descripton(result,stest,status)
+                click.secho(f"\t\t[{status}] {stest}: {description}", fg="red")
+
+    def set_subtests_descripton(self, result, stest, status):
+        description = result['test_status']['subtests_status'][stest]['description']
+
+        if status == 'FAIL':
+            def parse_traceback(tb):
+                assertion_line = tb[-2]
+                tbl = assertion_line.split(':')
+                if len(tbl) > 3:
+                    return f"{tbl[-2]}:{tbl[-1]}"
+                return tbl[-1]
+
+            for item in result['FAILS']:
+                k = list(item.keys())[0]
+                if k == stest:
+                    description = description + f"\n\t\t\tfailure: {parse_traceback(item[k])}"
+            for item in result['ERRORS']:
+                k = list(item.keys())[0]
+                if k == stest:
+                    description = description + f"\n\t\t\terror: {parse_traceback(item[k])}"
+        elif status == 'PASS':
+            pass
+        return description
+
+    def print_status_report(self,show_subtests=False):
         self.disable_print_warning = True
         self.disable_print_error = True
         i = 0
         for test_name in self.tests_order:
             result = self.read_latest_test_result(test_name)
             if not result:
-                click.secho('[%d] %s: Test result: N/A' % (i, test_name), fg="yellow")
+                print(click.style('[%d] %s: Test result: N/A' % (i, test_name), fg="yellow", bold=True))
             elif result['test_status']['status'] != 'SUCCESS':
-                click.secho('[%d] %s: Test result: FAIL' % (i, test_name,), fg="red")
-                for h in result['test_status']['hints']:
-                    click.secho('\t\tHINT: %s' % h, fg="red")
+                print(click.style('[%d] %s: Test result: FAIL' % (i, test_name,), fg="red", bold=True))
+                if show_subtests:
+                    self.print_subtests_status(result)
             else:
-                click.secho('[%d] %s: Test result: PASS' % (i, test_name), fg="green")
+                print(click.style('[%d] %s: Test result: PASS' % (i, test_name), fg="green", bold=True))
+                if show_subtests:
+                    self.print_subtests_status(result)
             i = i + 1
         self.disable_print_warning = False
         self.disable_print_error = False
@@ -212,7 +250,7 @@ class TestManager():
     def generate_latest_zip_file(self, zip_file=None):
 
         if zip_file is None:
-            zip_file = self.results_directory + '/diagnostic_check_%s_%s.zip'%(self.fleet_id,self.test_timestamp)
+            zip_file = self.results_directory + '/diagnostic_check_%s_%s.zip' % (self.fleet_id, self.test_timestamp)
 
         # Pass in a zip file to append new tests
 

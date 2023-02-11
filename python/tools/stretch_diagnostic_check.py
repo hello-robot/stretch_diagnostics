@@ -5,7 +5,7 @@ import argparse
 import stretch_body.hello_utils as hu
 from stretch_diagnostics.test_manager import TestManager
 from stretch_diagnostics.test_order import test_order
-from stretch_diagnostics.test_helpers import extract_zip
+from stretch_diagnostics.test_helpers import extract_zip, center_string
 import click
 from colorama import Style
 
@@ -40,19 +40,20 @@ args = parser.parse_args()
 
 
 def print_report(suite_names=None):
+    print(Style.BRIGHT + center_string('SUMMARY', ch='#') + '\n')
     if suite_names is None:
         suite_names = test_order.keys()
     for t in suite_names:
-        print(Style.BRIGHT + '####################### %s TESTS #######################' % t.upper() + Style.RESET_ALL)
+        print(Style.BRIGHT + center_string(f"{t.upper()} TESTS", ch='#') + Style.RESET_ALL)
         system_check = TestManager(test_type=t)
-        system_check.print_status_report()
+        system_check.print_status_report(show_subtests=True)
         print('')
 
 
 def run_test_type(test_type):
     mgmt = TestManager(test_type=test_type)
     if args.menu:
-        mgmt.run_menu()
+        mgmt.run_menu(show_subtests=False)
     else:
         mgmt.run_suite()
 
@@ -60,7 +61,7 @@ def run_test_type(test_type):
 def unzip_print_test_status(zip_file):
     dir_name = zip_file.split('.')[0]
     id = zip_file.find("stretch-re")
-    stretch_id = zip_file[id:id+16]
+    stretch_id = zip_file[id:id + 16]
     if not os.path.isdir(dir_name):
         os.system("mkdir {}".format(dir_name))
     if os.path.isdir(dir_name):
@@ -78,7 +79,7 @@ def unzip_print_test_status(zip_file):
         tx = "{} Tests Status".format(test_type)
         print(click.style(tx, bold=True))
         print("-" * len(tx))
-        tm.print_status_report()
+        tm.print_status_report(show_subtests=True)
 
 
 if args.menu and len(sys.argv) < 3:
@@ -101,7 +102,7 @@ if args.archive:
 
 if args.zip:
     print(
-        Style.BRIGHT + '############################## Zipping Latest Results ###############################' + Style.RESET_ALL)
+        Style.BRIGHT + center_string('Zipping Latest Results', 150, '#') + Style.RESET_ALL)
     zip_file = None
     for t in test_order.keys():
         mgmt = TestManager(test_type=t)
@@ -110,10 +111,11 @@ if args.zip:
     print('\n----------- Complete -------------')
     print('Zip file available at: %s' % zip_file)
 
+if args.report and len(sys.argv) > 2:
+    print("The '--report' can only be used alone.")
+    exit()
+
 if args.report:
-    print(Style.BRIGHT + '############################## SUMMARY ###############################\n')
-    # mgmt = TestManager(test_type='simple')
-    # mgmt.generate_last_diagnostic_report()
     print_report()
 
 if args.unzip:
