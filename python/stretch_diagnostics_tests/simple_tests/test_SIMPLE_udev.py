@@ -29,7 +29,7 @@ class Test_SIMPLE_udev(unittest.TestCase):
 
     def test_udev_log(self):
         """
-        Log udev files for Stretch devices
+        Log udev files for Stretch devices.
         """
         udev_files_list= glob.glob('/etc/udev/rules.d/*hello*.rules')
         for p in udev_files_list:
@@ -42,27 +42,20 @@ class Test_SIMPLE_udev(unittest.TestCase):
 
     def test_dynamixel_udev(self):
         """
-        Check that all Dynamixels devices have valid UDEV mappings
+        Check that all Dynamixels devices have valid UDEV mappings.
        """
         for s in self.dynamixel_devices:
             port = '/dev/' + s
             print('Checking UDEV for %s' % port)
-            udev_sn = test_helpers.get_serial_nos_from_udev('/etc/udev/rules.d/99-hello-dynamixel.rules', s)
-            if len(udev_sn) == 0:
-                self.test.add_hint('UDEV rule for %s not found in /etc/udev/rules.d/99-hello-dynamixel.rules' % s)
-            if len(udev_sn) > 1:
-                self.test.add_hint('Multiple UDEV rules for %s found in /etc/udev/rules.d/99-hello-dynamixel.rules' % s)
             dp = hdu.is_device_present(port)
-            if not dp:
-                self.test.add_hint('Device %s UDEV mapping not present' % s)
-                print('Device %s UDEV mapping not present' % s)
-                print('Udev is looking for %s' % udev_sn)
             self.assertTrue(dp, msg='Device %s not on bus' % s)
-            self.assertTrue(len(udev_sn) == 1, msg='Incorrect number of UDEV listings for %s' % s)
+            udev_sn = test_helpers.get_serial_nos_from_udev('/etc/udev/rules.d/99-hello-dynamixel.rules', s)
+            self.assertFalse(len(udev_sn) == 0,'UDEV rule for %s not found in /etc/udev/rules.d/99-hello-dynamixel.rules' % s)
+            self.assertFalse(len(udev_sn) > 1,'Multiple UDEV rules for %s found in /etc/udev/rules.d/99-hello-dynamixel.rules' % s)
 
     def test_ftdi_device_count(self):
         """
-        Check that there are two FTDI devices on bus
+        Check that there are two FTDI devices on bus.
         """
         tty_dev=test_helpers.find_tty_devices()
         dxl_keys=[]
@@ -73,11 +66,11 @@ class Test_SIMPLE_udev(unittest.TestCase):
 
     def test_ttyACM_symlinks(self):
         """
-        Check that all ttyACM devices have symlinks
+        Check that all ttyACM devices have symlinks.
         """
         # First check that there are at least 6 TTYACM devices
         ttyACM_SN_map = test_helpers.find_arduino_devices_sn()  # dict of {'/dev/ttyACM6': 'E469692150555733352E3120FF0A0C22',...}
-        self.assertTrue(len(ttyACM_SN_map) >= 6)
+        self.assertTrue(len(ttyACM_SN_map) >= 6,'Found less than 6 ttyACM devices')
         self.test.log_data('arduino_devices_udevadm', ttyACM_SN_map)
 
         # Now check that all ttyACM have symlinks
@@ -91,31 +84,21 @@ class Test_SIMPLE_udev(unittest.TestCase):
             print('Checking symlinks for %s' % ttyACM)
             # print('DEVLINKS',devlinks)
             if len(devlinks) < 3:
-                self.test.add_hint('Device %s with serial %s lacks UDEV symlink.' % (ttyACM, sn))
                 self.test.log_data('missing_symlink_%s' % ttyACM, test_helpers.extract_udevadm_info(ttyACM))
-            self.assertTrue(len(devlinks) == 3)
+            self.assertTrue(len(devlinks) == 3,'Device %s with serial %s lacks UDEV symlink.' % (ttyACM, sn))
 
     def test_arduino_udev(self):
         """
-        Check that all arduino devices have valid UDEV mappings
+        Check that all arduino devices have valid UDEV mappings.
        """
         for s in self.arduino_devices:
             port='/dev/'+s
             print('Checking UDEV for %s'%port)
-            udev_sn = test_helpers.get_serial_nos_from_udev('/etc/udev/rules.d/95-hello-arduino.rules', s)
-            if len(udev_sn) == 0:
-                self.test.add_hint('UDEV rule for %s not found in /etc/udev/rules.d/95-hello-arduino.rules' % s)
-            if len(udev_sn) > 1:
-                self.test.add_hint('Multiple UDEV rules for %s found in /etc/udev/rules.d/95-hello-arduino.rules' % s)
-
             dp = hdu.is_device_present(port)
-            if not dp:
-                self.test.add_hint('Device %s UDEV mapping not present' % s)
-                print('Device %s UDEV mapping not present' % s)
-                print('Udev is looking for %s' % udev_sn)
-            self.assertTrue(dp,msg='Device %s not on bus'%s)
-            self.assertTrue(len(udev_sn) == 1,msg='Incorrect number of UDEV listings for %s'%s)
-
+            self.assertTrue(dp, msg='Device %s not on bus' % s)
+            udev_sn = test_helpers.get_serial_nos_from_udev('/etc/udev/rules.d/95-hello-arduino.rules', s)
+            self.assertFalse(len(udev_sn) == 0,'UDEV rule for %s not found in /etc/udev/rules.d/95-hello-arduino.rules' % s)
+            self.assertFalse(len(udev_sn) > 1,'Multiple UDEV rules for %s found in /etc/udev/rules.d/95-hello-arduino.rules' % s)
 
 
 test_suite = TestSuite(test=Test_SIMPLE_udev.test,failfast=False)

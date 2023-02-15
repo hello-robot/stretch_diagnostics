@@ -16,7 +16,6 @@ class Test_CPU_usage_temp(unittest.TestCase):
     """
 
     test = TestBase('test_CPU_usage_temp')
-    test.add_hint("This test is for monitoring CPU usage and temperature.")
 
     @classmethod
     def setUpClass(self):
@@ -42,9 +41,7 @@ class Test_CPU_usage_temp(unittest.TestCase):
 
         self.test.log_data('test_cpu_usage', usage)
 
-        if usage > 55: # CPU usage must be less than 55%
-            self.test.add_hint("Kill all running processes before running diagnostics.")
-        self.assertLess(usage, 55)
+        self.assertLess(usage, 55,"CPU usage of %f already high. Kill all running processes before running diagnostics."%usage)
 
     def test_CPU_temp(self):
         """
@@ -56,12 +53,8 @@ class Test_CPU_usage_temp(unittest.TestCase):
         print('The CPU temperature is: ', '{} degC'.format(temperature))
 
         self.test.log_data('test_cpu_temperature', temperature)
-
-        if temperature > 90: # CPU temperature must be less than 90 deg C
-            self.test.add_hint("Kill all running processes before running diagnostics.")
-            self.test.add_hint("Monitor CPU temperature and ensure CPU fan turns on.")
         
-        self.assertLess(temperature, 90)
+        self.assertLess(temperature, 90, 'CPU temp of %f already high. Kill all running processes before running diagnostics.'%temperature)
 
 
 test_suite = TestSuite(test=Test_CPU_usage_temp.test, failfast=False)

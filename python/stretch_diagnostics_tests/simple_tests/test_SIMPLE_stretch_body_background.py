@@ -15,7 +15,6 @@ class Test_SIMPLE_stretch_body_background(unittest.TestCase):
     Test USB Devices on Bus
     """
     test = TestBase('test_SIMPLE_stretch_body_background')
-    test.add_hint('Stretch Body processes running in background. Kill with: killall -9 python3')
 
     def test_stretch_body_background(self):
         """
@@ -30,7 +29,7 @@ class Test_SIMPLE_stretch_body_background(unittest.TestCase):
                          '/dev/hello-motor-arm': False,
                          '/dev/hello-motor-right-wheel': False,
                          '/dev/hello-motor-lift': False}
-        for d in robot_devices.keys():
+        for d in robot_devices:
             try:
                 ser = serial.Serial(d)
                 if ser.isOpen():
@@ -39,11 +38,11 @@ class Test_SIMPLE_stretch_body_background(unittest.TestCase):
                     except IOError:
                         robot_devices[d]=True
             except OSError:
-                self.test.add_hint('Device %s not available on bus'%d)
+                pass
 
         self.test.log_data('robot_devices_on_bus',robot_devices)
 
-        for d in robot_devices.keys():
+        for d in robot_devices:
             print('Device %s on bus: %d' %(d,robot_devices[d]))
             self.assertFalse(robot_devices[d], msg='Port %s is busy. Another Stretch Body process is already running' % d)
 

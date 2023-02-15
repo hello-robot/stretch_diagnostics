@@ -16,7 +16,6 @@ class Test_SIMPLE_foo(unittest.TestCase):
 
     # test object is always expected within a TestCase Class
     test = TestBase('test_SIMPLE_foo')
-    test.add_hint("This test is foo failure.")
 
     @classmethod
     def setUpClass(self):
@@ -42,41 +41,39 @@ class Test_SIMPLE_foo(unittest.TestCase):
 
         self.test.log_params('param_key1', 'any value')
         self.test.log_data('data_key1', 100)
-        if 1 > 0:
-            self.test.add_hint("Foo 1 hint.")
-        self.assertEqual(1, 0)
+        self.assertEqual(1, 0,msg="Foo 1 msg.")
 
     def test_foo_2(self):
         """
         Short Description of Test foo 2
         """
         self.test.log_params('param_key2', {'val': 0})
-        self.assertTrue(False)
+        self.assertTrue(False,msg='Foo 2 msg')
 
     def test_foo_3(self):
         """
         Short Description of Test foo 3
         """
-        self.assertTrue(96 > len('hello'))
+        self.assertTrue(96 > len('hello'),msg='Foo 3 msg')
         print(self.test._non_existing_object)
 
     def test_foo_4(self):
         """
         Short Description of Test foo 4
         """
-        self.assertTrue(3 > len('hello'), "I have an error message")
+        self.assertTrue(3 > len('hello'), msg="I have an error message")
 
     def test_foo_5(self):
         """
         Short Description of Test foo 5
         """
-        self.assertGreaterEqual(10, 10.5, "I have an error message")
+        self.assertGreaterEqual(10, 10.5, msg="I have an error message")
 
     def test_foo_6(self):
         """
         Short Description of Test foo 6
         """
-        self.assertGreaterEqual(10, 10, "I have an error message")
+        self.assertGreaterEqual(10, 10, msg="I have an error message")
 
 
 # Initialize you test suite with TestSuite(test,failfast)

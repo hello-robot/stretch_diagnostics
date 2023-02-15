@@ -22,7 +22,7 @@ class test_POWER_charger(unittest.TestCase):
         """
         data = {}
         p = stretch_body.pimu.Pimu()
-        self.assertTrue(p.startup())
+        self.assertTrue(p.startup(),'Failed to startup Pimu')
         p.pull_status()
 
         click.secho('Plug charger into robot and place charger in SUPPLY mode', fg="yellow")
@@ -46,8 +46,6 @@ class test_POWER_charger(unittest.TestCase):
         low_voltage = sls.avg < supply_mode_voltage_min
         msg = 'Average supply mode voltage of %f below expected of %f. May be broken charger or cable.' % (
         sls.avg, supply_mode_voltage_min)
-        if low_voltage:
-            self.test.add_hint(msg)
         self.assertFalse(low_voltage, msg=msg)
 
         self.test.log_data('test_supply_mode_voltage', data)

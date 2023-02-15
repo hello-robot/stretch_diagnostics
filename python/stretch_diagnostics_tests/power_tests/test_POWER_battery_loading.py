@@ -38,7 +38,7 @@ class test_POWER_battery_loading(unittest.TestCase):
         """
         data={}
         p=stretch_body.pimu.Pimu()
-        self.assertTrue(p.startup())
+        self.assertTrue(p.startup(),'Failed to startup Pimu')
         p.pull_status()
 
         print()
@@ -59,8 +59,6 @@ class test_POWER_battery_loading(unittest.TestCase):
 
         low_voltage=sls.avg<v_min
         msg='Average no load voltage of %f below expected of %f. Batteries may be dischaged or damaged.'%(sls.avg,v_min)
-        if low_voltage:
-            self.test.add_hint(msg)
         self.assertFalse(low_voltage,msg=msg)
 
         #Measure loaded voltage
@@ -74,8 +72,6 @@ class test_POWER_battery_loading(unittest.TestCase):
 
         low_voltage = sls.avg < v_min
         msg = 'Average loaded voltage of %f below expected of %f. Batteries may be dischaged or damaged.' % (sls.avg, v_min)
-        if low_voltage:
-            self.test.add_hint(msg)
         self.assertFalse(low_voltage, msg=msg)
 
         self.test.log_data('test_battery_loading', data)

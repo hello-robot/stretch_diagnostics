@@ -37,21 +37,22 @@ class Test_ROS_calibration(unittest.TestCase):
         home_path = os.getenv('HOME')
         yaml_catkin_ws = 'catkin_ws/src/stretch_ros/stretch_core/config/controller_calibration_head.yaml'
         yaml_ament_ws = 'ament_ws/src/stretch_ros2/stretch_description/urdf/controller_calibration_head.yaml'
-        
+
+        head_calibration_path='./'
         if ros_distro in ['melodic', 'noetic']:
             head_calibration_path = '{0}/{1}'.format(home_path, yaml_catkin_ws)
         elif ros_distro in ['galactic', 'humble']:
             head_calibration_path = '{0}/{1}'.format(home_path, yaml_ament_ws)
         else:
-            self.test.add_hint("No ROS distro sourced. Source ROS in the ~/.bashrc file.")
+            self.assertTrue(0,"No ROS distro sourced. Source ROS in the ~/.bashrc file.")
         
         head_calibration_exists = os.path.exists(head_calibration_path)
 
         if not head_calibration_exists:
-            self.test.add_hint("Could not find head calibration file {}.".format(head_calibration_path))
+            self.assertTrue(0,"Could not find head calibration file {}.".format(head_calibration_path))
         
         self.test.log_data('head_calibration_exists', head_calibration_exists)
-        self.assertTrue(head_calibration_exists)
+        self.assertTrue(head_calibration_exists,'Head calibration file does not exist')
 
     def test_calib_urdf_file(self):
         """
@@ -62,21 +63,22 @@ class Test_ROS_calibration(unittest.TestCase):
         home_path = os.getenv('HOME')
         urdf_catkin_ws = 'catkin_ws/src/stretch_ros/stretch_description/urdf/stretch.urdf'
         urdf_ament_ws = 'ament_ws/src/stretch_ros2/stretch_description/urdf/stretch.urdf'
-        
+
+        calibrated_urdf_path='./'
         if ros_distro in ['melodic', 'noetic']:
             calibrated_urdf_path = '{0}/{1}'.format(home_path, urdf_catkin_ws)
         elif ros_distro in ['galactic', 'humble']:
             calibrated_urdf_path = '{0}/{1}'.format(home_path, urdf_ament_ws)
         else:
-            self.test.add_hint("No ROS distro sourced. Source ROS in the ~/.bashrc file.")
+            self.assertTrue(0,"No ROS distro sourced. Source ROS in the ~/.bashrc file.")
         
         calibrated_urdf_exists = os.path.exists(calibrated_urdf_path)
 
         if not calibrated_urdf_exists:
-            self.test.add_hint("Could not find calibrated URDF file {}.".format(calibrated_urdf_path))
+            self.assertTrue(0,"Could not find calibrated URDF file {}.".format(calibrated_urdf_path))
         
         self.test.log_data('calibrated_urdf_exists', calibrated_urdf_exists)
-        self.assertTrue(calibrated_urdf_exists)
+        self.assertTrue(calibrated_urdf_exists, 'Calibrated URDF does not exist')
 
 test_suite = TestSuite(test=Test_ROS_calibration.test, failfast=False)
 

@@ -27,10 +27,10 @@ class Test_ROS_sourced_distro(unittest.TestCase):
                 self.test.add_hint('No ROS installation detected. Install ROS.')
         except subprocess.CalledProcessError: # if /opt/ros directory does not exist
             distros = []
-            self.test.add_hint('No ROS installation detected. Install ROS.')
+            self.assertTrue(0,'No ROS installation detected. Install ROS.')
 
         self.test.log_data('ros_distro_installed', distros)
-        self.assertTrue(distros)
+        self.assertTrue(distros,'No ROS distro installed')
 
     def test_distro_sourced(self):
         """
@@ -39,11 +39,10 @@ class Test_ROS_sourced_distro(unittest.TestCase):
 
         distro = os.getenv('ROS_DISTRO')
 
-        if not distro:
-            self.test.add_hint('No ROS distro sourced. Source ROS in the ~/.bashrc file.')
+        self.assertTrue(distro,'No ROS distro sourced. Source ROS in the ~/.bashrc file.')
 
         self.test.log_data('ros_distro_sourced', distro)
-        self.assertTrue(distro)
+        self.assertTrue(distro, 'No ROS distro sourced')
         
     def test_workspace_sourced(self):
         """
@@ -67,7 +66,7 @@ class Test_ROS_sourced_distro(unittest.TestCase):
                         line_list.append(line)
 
         if not line_list:
-            self.test.add_hint('There is no ros workspace sourced. Source {} workspace in .bashrc file.'.format(distro))
+            self.assertTrue(0,'There is no ros workspace sourced. Source {} workspace in .bashrc file.'.format(distro))
         else:
             for line in line_list:
                 if distro in ['melodic', 'noetic'] and catkin_ws_path in line:
@@ -85,11 +84,9 @@ class Test_ROS_sourced_distro(unittest.TestCase):
                     ros_ws_sourced = ament_ws_path
                     break
 
-        if not sourced:
-            self.test.add_hint('Either no or conflicting ros workspace sourced. Source correct ros workspace in .bashrc file.')
-        
+        self.assertTrue(sourced,'Either no or conflicting ros workspace sourced. Source correct ros workspace in .bashrc file.')
         self.test.log_data('ros_ws_sourced', ros_ws_sourced)
-        self.assertTrue(sourced)
+
 
 
 # failsafe set to True - if a test fails, subsequent tests will be assumed to fail and won't be run
