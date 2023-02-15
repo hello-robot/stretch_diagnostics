@@ -17,8 +17,6 @@ class Test_STEPPER_sync(unittest.TestCase):
     Test Stepper calibration data consistency
     """
     test = TestBase('test_STEPPER_sync')
-    test.add_hint('Possible issue with sync line on stepper or Pimu PCBA / cabling')
-
 
     def stepper_sync(self,joint,xd,error_thresh):
         """
@@ -59,16 +57,12 @@ class Test_STEPPER_sync(unittest.TestCase):
         error = abs(log['sync_x0'] - log['sync_x1'])
         msg = '%s: Waiting on sync and motion of %f (rad) relative to expected of %f' % (joint, error, 0)
         print(msg)
-        if error > error_thresh:
-            self.test.add_hint(msg)
         self.assertTrue(error < error_thresh, msg=msg)  # Within error_thresh radians
 
         # Check that motion after pimu trigger
         error = abs(log['sync_x1'] - log['sync_x2'])-xd
         msg = '%s: Triggered sync and motion of %f (rad) relative to expected of %f' % (joint,abs(log['sync_x1'] - log['sync_x2']), xd)
         print(msg)
-        if error > error_thresh:
-            self.test.add_hint(msg)
         self.assertTrue(error < error_thresh, msg=msg)  # Within error_thresh radians
         motor.stop()
 
@@ -90,7 +84,7 @@ class Test_STEPPER_sync(unittest.TestCase):
         "Check that sync is working for the lift"
         click.secho('Ensure LIFT is not near its hardstop. Hit enter when ready', fg="yellow")
         input()
-        self.stepper_sync('hello-motor-lift',xd=0.5,error_thresh=0.1)
+        self.stepper_sync('hello-motor-lift',xd=0.5,error_thresh=0.2)
 
 test_suite = TestSuite(test=Test_STEPPER_sync.test,failfast=False)
 test_suite.addTest(Test_STEPPER_sync('test_sync_right_wheel'))

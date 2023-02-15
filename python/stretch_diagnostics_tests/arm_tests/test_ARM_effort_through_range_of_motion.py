@@ -4,9 +4,7 @@ from stretch_diagnostics.test_base import TestBase
 from stretch_diagnostics.test_runner import TestRunner
 from stretch_diagnostics.test_suite import TestSuite
 import unittest
-import stretch_factory.hello_device_utils as hdu
 import stretch_body.arm
-import stretch_body.hello_utils as hu
 import time
 import click
 
@@ -22,7 +20,7 @@ class test_ARM_effort_through_range_of_motion(unittest.TestCase):
         """
         data = {}
         a = stretch_body.arm.Arm()
-        self.assertTrue(a.startup())
+        self.assertTrue(a.startup(),'Unable to startup arm')
         #Move through manually set mechanical limits without any safty protections on
         #Log what the worst case motor effort is required
         #Also don't require homing to be done as that may be broken
@@ -109,8 +107,6 @@ class test_ARM_effort_through_range_of_motion(unittest.TestCase):
         self.test.log_data('test_effort_through_range_of_motion', data)
 
         a.stop()
-        if not in_bounds:
-            self.test.add_hint(msg_in_bounds)
         self.assertTrue(in_bounds, msg_in_bounds)
 
 

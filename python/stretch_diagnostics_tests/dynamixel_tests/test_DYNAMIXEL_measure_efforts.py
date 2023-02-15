@@ -72,8 +72,6 @@ class Test_DYNAMIXEL_measure_efforts(unittest.TestCase):
 
         eb = (min_eff > self.effort_limits[joint][0]) and (max_eff < self.effort_limits[joint][1])
         msg='Effort of %f|%f for %s required exceeds limits of %f|%f. Check for mechanical obstruction'%(min_eff,max_eff,joint,self.effort_limits[joint][0],self.effort_limits[joint][1])
-        if not eb:
-            self.test.add_hint(msg)
         self.assertTrue(eb,msg=msg)
         return log
 

@@ -91,25 +91,20 @@ class Test_SIMPLE_software_packages(unittest.TestCase):
         apt_list = apt.Cache()
         if distro.version() == '18.04':
             self.test.log_data('ros-melodic-librealsense2', 'ros-melodic-librealsense2' in apt_list)
-            self.assertTrue('ros-melodic-librealsense2' in apt_list)
-            self.assertFalse(apt_list['ros-melodic-librealsense2'].is_installed)
-            if apt_list['ros-melodic-librealsense2'].is_installed:
-                self.test.add_hint('Library ros-melodic-librealsense2 is installed')
+            self.assertTrue('ros-melodic-librealsense2' in apt_list,'ros-melodic-librealsense2 not found in apt')
+            self.assertFalse(apt_list['ros-melodic-librealsense2'].is_installed,'Library ros-melodic-librealsense2 is installed')
+
 
         if distro.version() == '20.04':
             self.test.log_data('ros-noetic-librealsense2', 'ros-noetic-librealsense2' in apt_list)
-            self.assertTrue('ros-noetic-librealsense2' in apt_list)
+            self.assertTrue('ros-noetic-librealsense2' in apt_list,'ros-noetic-librealsense2 not found in apt')
 
-            if apt_list['ros-noetic-librealsense2'].is_installed:
-                self.test.add_hint('Library ros-noetic-librealsense2 is installed')
-            self.assertFalse(apt_list['ros-noetic-librealsense2'].is_installed)
+            self.assertFalse(apt_list['ros-noetic-librealsense2'].is_installed,'Library ros-noetic-librealsense2 is installed')
 
             self.test.log_data('ros-galactic-librealsense2', 'ros-galactic-librealsense2' in apt_list)
-            self.assertTrue('ros-galactic-librealsense2' in apt_list)
+            self.assertTrue('ros-galactic-librealsense2' in apt_list,'ros-galactic-librealsense2 not found in apt')
 
-            if apt_list['ros-galactic-librealsense2'].is_installed:
-                self.test.add_hint('Library ros-galactic-librealsense2 is installed')
-            self.assertFalse(apt_list['ros-galactic-librealsense2'].is_installed)
+            self.assertFalse(apt_list['ros-galactic-librealsense2'].is_installed,'Library ros-galactic-librealsense2 is installed')
 
 
 test_suite = TestSuite(test=Test_SIMPLE_software_packages.test, failfast=False)

@@ -27,8 +27,6 @@ class Test_DYNAMIXEL_check_zero_position(unittest.TestCase):
         print('Measured zero_t of %f for %s. YAML zero_t of %f ticks'%(servo.status['pos_ticks'],joint, servo.params['zero_t']))
         print('Difference of %f degrees' % rad_to_deg(servo.status['pos']))
         msg = 'Measured zero_t of %f for %s is not near YAML zero_t of %f ticks. Check joint for mechanical issues and parameter settings.' % (servo.status['pos_ticks'],joint, servo.params['zero_t'])
-        if bad_zero:
-            self.test.add_hint(msg)
         self.test.log_data(joint+'_measured_zero_t', servo.status['pos_ticks'])
         self.test.log_data(joint+'_yaml_zero_t', servo.params['zero_t'])
         self.assertFalse(bad_zero, msg=msg)

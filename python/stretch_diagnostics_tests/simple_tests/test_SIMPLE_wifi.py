@@ -20,11 +20,9 @@ class Test_SIMPLE_wifi(unittest.TestCase):
         try:
             s = socket.create_connection(("www.hello-robot.com", 80))
             if s is not None:
-                s.close
+                s.close()
         except OSError:
-            msg = 'Internet connection is bad. Check Wifi settings'
-            self.test.add_hint(msg)
-            self.assertTrue(False,msg=msg)
+            self.assertTrue(False,msg='Internet connection is bad. Check Wifi settings')
 
 
 

@@ -29,13 +29,13 @@ class Test_SIMPLE_usb_devices_on_bus(unittest.TestCase):
         pattern = "hello*"
         for entry in listOfFiles:
             if fnmatch.fnmatch(entry, pattern):
-                robot_devices[entry] = True
+                ttyACM_devices[entry] = True
 
-        for k in robot_devices.keys():
+        for k in ttyACM_devices:
             with self.subTest(msg=k):
-                self.assertTrue(robot_devices[k], msg='{} Not found'.format(k))
-        print(yaml.dump(robot_devices))
-        self.test.log_data('devices_on_usb',robot_devices)
+                self.assertTrue(ttyACM_devices[k], msg='{} Not found'.format(k))
+        print(yaml.dump(ttyACM_devices))
+        self.test.log_data('devices_on_usb',ttyACM_devices)
     def test_usb_devices_on_bus(self):
         """
         Verify if all the hello-* usb devices are present in the bus
@@ -57,10 +57,8 @@ class Test_SIMPLE_usb_devices_on_bus(unittest.TestCase):
             if fnmatch.fnmatch(entry, pattern):
                 robot_devices[entry] = True
 
-        for k in robot_devices.keys():
+        for k in robot_devices:
             with self.subTest(msg=k):
-                if not robot_devices[k]:
-                    self.test.add_hint('Device %s not on USB bus'%k)
                 self.assertTrue(robot_devices[k], msg='{} Not found'.format(k))
         print(yaml.dump(robot_devices))
         self.test.log_data('devices_on_usb',robot_devices)

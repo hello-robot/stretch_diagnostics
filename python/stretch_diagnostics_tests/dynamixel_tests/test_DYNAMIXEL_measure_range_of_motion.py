@@ -27,8 +27,6 @@ class Test_DYNAMIXEL_measure_range_of_motion(unittest.TestCase):
         dn = abs(self.range_t_nominal[joint][0] - self.range_t_nominal[joint][1])
         bad_yaml_range = abs(dr-dn)>0.1*dr #within 10%
         msg='YAML |range_t|=%f for %s is not near expected |range_t| of %f ticks. Try running REx_calibrate_range.py --%s.'%(dn,joint,dr,joint)
-        if bad_yaml_range:
-            self.test.add_hint(msg)
         self.assertFalse(bad_yaml_range,msg=msg)
 
         servo.params['req_calibration'] = 1
@@ -39,8 +37,6 @@ class Test_DYNAMIXEL_measure_range_of_motion(unittest.TestCase):
         dr = abs(measured[0] - measured[1])
         bad_yaml_range = abs(dr-dn)>0.1*dr #within 10%
         msg = 'Measured |range_t|=%f for %s is not near expected |range_t| of %f ticks. Try running REx_calibrate_range.py --%s' % (dn,joint, dr,joint)
-        if bad_yaml_range:
-            self.test.add_hint(msg)
         self.assertFalse(bad_yaml_range, msg=msg)
 
         servo.stop()

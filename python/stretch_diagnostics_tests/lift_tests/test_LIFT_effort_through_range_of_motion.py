@@ -22,7 +22,7 @@ class test_LIFT_effort_through_range_of_motion(unittest.TestCase):
         """
         data = {}
         l = stretch_body.lift.Lift()
-        self.assertTrue(l.startup())
+        self.assertTrue(l.startup(),'Unable to startup lift')
         #Move through manually set mechanical limits without any safty protections on
         #Log what the worst case motor effort is required
         #Also don't require homing to be done as that may be broken
@@ -110,8 +110,6 @@ class test_LIFT_effort_through_range_of_motion(unittest.TestCase):
         self.test.log_data('test_effort_through_range_of_motion', data)
 
         l.stop()
-        if not in_bounds:
-            self.test.add_hint(msg_in_bounds)
         self.assertTrue(in_bounds, msg_in_bounds)
 
 

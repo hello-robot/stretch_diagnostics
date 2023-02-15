@@ -73,7 +73,7 @@ class Test_REALSENSE_cable(unittest.TestCase):
 
     # test object is always expected within a TestCase Class
     test = TestBase('test_REALSENSE_cable')
-    test.add_hint("Realsense cable might be having issues.")
+
 
     @classmethod
     def setUpClass(self):
@@ -100,8 +100,7 @@ class Test_REALSENSE_cable(unittest.TestCase):
 
         if len(out):
             print('Confirmed USB 3.2 connection to realsense device')
-        else:
-            self.add_hint('Did not find USB 3.2 connection to realsense device')
+
         self.assertIsNot(len(out), 0, msg='Did not find USB 3.2 connection to realsense device')
 
     def test_realsense_on_usb_bus(self):
@@ -111,18 +110,14 @@ class Test_REALSENSE_cable(unittest.TestCase):
         print('---- Checking for Intel D435i ----')
         cmd = "lsusb -d 8086:0b3a"
         returned_value = subprocess.call(cmd, shell=True)  # returns the exit code in unix
-        if returned_value != 0:
-            self.test.add_hint('Realsense D435i not found at USB Bus')
-        self.assertEqual(returned_value, 0)
+        self.assertEqual(returned_value, 0,'Realsense D435i not found at USB Bus')
 
     def test_realsense_details(self):
         """
         Capture realsense details and log
         """
         d = get_rs_details()
-        if d is None:
-            self.test.add_hint('Not able to launch Realsense driver. It may be conflicting with ROS')
-        self.assertIsNotNone(d)
+        self.assertIsNotNone(d,'Not able to launch Realsense driver. It may be conflicting with ROS')
         self.test.log_data('realsense_details', d)
 
     def check_dmesg(self, msgs):
@@ -163,7 +158,6 @@ class Test_REALSENSE_cable(unittest.TestCase):
         """
         Move head pan-tilt continuously for 30s and observe USB messages in DMESG
         """
-        self.test.add_hint("Check for damaged realsense cable or electrical interferences.")
         robot = stretch_body.robot.Robot()
         input(click.style(
             "Make sure the head is free to move without obstructions. The head will spin for 2 minutes. Press ENTER",

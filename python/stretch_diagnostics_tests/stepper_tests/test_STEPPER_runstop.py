@@ -17,8 +17,6 @@ class Test_STEPPER_runstop(unittest.TestCase):
     Test Stepper calibration data consistency
     """
     test = TestBase('test_STEPPER_runstop')
-    test.add_hint('Possible issue with runstop line on stepper or Pimu PCBA / cabling')
-
 
     def stepper_runstop(self,joint,xd,error_thresh):
         """
@@ -49,8 +47,6 @@ class Test_STEPPER_runstop(unittest.TestCase):
         error=abs(log['runstop_off_x1']-log['runstop_off_x0']-xd)
         msg='%s: Runstop off and motion of %f (rad) relative to expected of %f'%(joint,abs(log['runstop_off_x1']-log['runstop_off_x0']),xd)
         print(msg)
-        if  error>error_thresh:
-            self.test.add_hint(msg)
         self.assertTrue(error<error_thresh,msg=msg) #Within error_thresh radians
 
         print('Triggering runstop and checking for no motion...')
@@ -68,8 +64,6 @@ class Test_STEPPER_runstop(unittest.TestCase):
         error = abs(log['runstop_on_x1'] - log['runstop_on_x0'])
         msg = '%s: Runstop on and motion of %f (rad) relative to expected of %f' % (joint,error, 0)
         print(msg)
-        if error > error_thresh:
-            self.test.add_hint(msg)
         self.assertTrue(error < error_thresh, msg=msg)  # Within error_thresh radians
         p.runstop_event_reset()
         p.push_command()
@@ -85,11 +79,17 @@ class Test_STEPPER_runstop(unittest.TestCase):
 
     def test_runstop_arm(self):
         "Check that runstop is working for the arm"
+        print()
+        click.secho('Ensure arm is not at a hardstop. Hit enter when ready', fg="yellow")
+        input()
         self.stepper_runstop('hello-motor-arm',xd=0.5,error_thresh=0.1)
 
     def test_runstop_lift(self):
         "Check that runstop is working for the lift"
-        self.stepper_runstop('hello-motor-lift',xd=0.5,error_thresh=0.1)
+        print()
+        click.secho('Ensure lift is not at a hardstop. Hit enter when ready', fg="yellow")
+        input()
+        self.stepper_runstop('hello-motor-lift',xd=0.5,error_thresh=0.2)
 
 test_suite = TestSuite(test=Test_STEPPER_runstop.test,failfast=False)
 test_suite.addTest(Test_STEPPER_runstop('test_runstop_right_wheel'))

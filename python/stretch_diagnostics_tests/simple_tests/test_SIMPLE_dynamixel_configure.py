@@ -20,8 +20,6 @@ class Test_SIMPLE_dynamixel_configure(unittest.TestCase):
         """
         for d in self.devices:
             dh=hdu.is_device_present('/dev/'+d)
-            if not dh:
-                self.test.add_hint('Device %s not on bus. May be UDEV or hardware issue.'%d)
             self.assertTrue(dh,msg='Device %s not on bus. May be UDEV or hardware issue.'%d)
 
     def test_identify_baud(self):
@@ -36,8 +34,6 @@ class Test_SIMPLE_dynamixel_configure(unittest.TestCase):
             servo=stretch_body.dynamixel_hello_XL430.DynamixelHelloXL430(name=j, chain=None)
             baud_id[j]['params']=servo.params['baud']
             msg='Baud mismmatch for %s. YAML param is %d and servo is set to %d'%(j,baud_id[j]['params'],baud_id[j]['identified'])
-            if baud_id[j]['params'] != baud_id[j]['identified']:
-                self.test.add_hint(msg)
             self.assertTrue(baud_id[j]['params'] == baud_id[j]['identified'],msg=msg)
         self.test.log_data('baud_identification', baud_id)
 
@@ -47,12 +43,8 @@ class Test_SIMPLE_dynamixel_configure(unittest.TestCase):
         for j in self.joints:
             servo = stretch_body.dynamixel_hello_XL430.DynamixelHelloXL430(name=j, chain=None)
             st=servo.startup()
-            if not st:
-                self.test.add_hint('Not able to connect to servo %s. May be a hardware or baud issue' % j)
-            self.assertTrue(st)
+            self.assertTrue(st,'Unable to startup %s'%j)
             ping[j]=servo.do_ping()
-            if not ping[j]:
-                self.test.add_hint('Failed to ping servo %s'%j)
             self.assertTrue(ping[j], msg='Failed to ping servo %s'%j)
         self.test.log_data('servo_pinged', ping)
 

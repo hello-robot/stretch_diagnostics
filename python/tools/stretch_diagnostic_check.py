@@ -59,7 +59,11 @@ def run_test_type(test_type):
 
 
 def unzip_print_test_status(zip_file):
-    dir_name = zip_file.split('.')[0]
+    s = zip_file.split('.')
+    if not os.path.exists(zip_file) or s[-1]!='zip':
+        print('Invalid zip filename')
+        return
+    dir_name = s[-2].strip('/')
     id = zip_file.find("stretch-re")
     stretch_id = zip_file[id:id + 16]
     if not os.path.isdir(dir_name):
