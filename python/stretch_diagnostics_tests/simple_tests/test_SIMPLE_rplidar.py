@@ -30,6 +30,35 @@ class Test_SIMPLE_rplidar(unittest.TestCase):
             rplidar.disconnect()
         except RPLidarException:
             self.assertTrue(0,msg='RPLidar exception. Check all cables to device.')
+
+    def test_rplidar_speed(self):
+        """
+        Measure the scan rate (points-per-sec) for 10s
+        """
+        ts=time.time()
+        try:
+            rplidar = RPLidar('/dev/hello-lrf')
+            old_t = None
+            points_per_sec = []
+            for i, scan in enumerate(rplidar.iter_scans(scan_type='express')):
+                now = time.time()
+                if old_t is None:
+                    old_t = now
+                    continue
+                delta = now - old_t
+                print('%.2f points-per-sec' % (len(scan)/delta))
+                points_per_sec.append(len(scan)/delta)
+                old_t = now
+                if now-ts>10.0:
+                    break
+
+            ah = sum(points_per_sec) / len(points_per_sec)
+            print('Mean points-per-sec: %.2f Hz' % (ah))
+            self.test.log_data('rplidar_points_per_sec', points_per_sec)
+            self.assertTrue(ah>2500.0,'RPLidar scan rate of %f points-per-sec below threshold of 2500. Check USB cables.'%ah)
+        except RPLidarException:
+            self.assertTrue(0, msg='RPLidar exception. Check all cables to device.')
+
     def test_rplidar_scan(self):
         """
         Check that rplidar can generate a complete scan
@@ -68,7 +97,7 @@ test_suite = TestSuite(test=Test_SIMPLE_rplidar.test,failfast=True)
 test_suite.addTest(Test_SIMPLE_rplidar('test_rplidar_present'))
 test_suite.addTest(Test_SIMPLE_rplidar('test_rplidar_info'))
 test_suite.addTest(Test_SIMPLE_rplidar('test_rplidar_scan'))
-
+test_suite.addTest(Test_SIMPLE_rplidar('test_rplidar_speed'))
 if __name__ == '__main__':
     runner = TestRunner(test_suite)
     runner.run()
