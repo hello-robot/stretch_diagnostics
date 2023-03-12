@@ -31,9 +31,9 @@ class Test_STEPPER_calibration_data_match(unittest.TestCase):
         #m.turn_rpc_interface_on()
         #m.stop()
         log['match']=(log['yaml_data'] == log['flash_data'])
+        self.check_if_calibration_corrupted(log['flash_data'])
         self.assertTrue(log['match'],'Encoder calibration in flash for %s does not match that in YAML. See REx_stepper_calibration_flash_to_YAML.py' % s)
         self.test.log_data('encoder_calibration_%s'%s, log)
-        self.check_if_calibration_corrupted(log['flash_data'])
 
     def check_if_calibration_corrupted(self, data):
         """
