@@ -33,6 +33,21 @@ class Test_STEPPER_calibration_data_match(unittest.TestCase):
         log['match']=(log['yaml_data'] == log['flash_data'])
         self.assertTrue(log['match'],'Encoder calibration in flash for %s does not match that in YAML. See REx_stepper_calibration_flash_to_YAML.py' % s)
         self.test.log_data('encoder_calibration_%s'%s, log)
+        self.check_if_calibration_corrupted(log['flash_data'])
+
+    def check_if_calibration_corrupted(self, data):
+        """
+        Function to check if the collected data is corrupt
+        """
+        Target_data_len = 16384
+        self.test.log_params('target_data_len', Target_data_len)
+        self.assertEqual(len(data), Target_data_len, msg='Incorrect encoder data length.')
+
+        cnt = 0
+        for d in data:
+            if d == float(0):
+                cnt = cnt + 1
+        self.assertGreaterEqual(Target_data_len / 2,cnt, msg='Invalid Encoder Data. Non-zero data expected.')
 
     def test_calibration_data_match_lift(self):
         """
