@@ -60,7 +60,7 @@ class Test_STEPPER_sync(unittest.TestCase):
         self.assertTrue(error < error_thresh, msg=msg)  # Within error_thresh radians
 
         # Check that motion after pimu trigger
-        error = abs(log['sync_x1'] - log['sync_x2'])-xd
+        error = abs(abs(log['sync_x1'] - log['sync_x2'])-xd)
         msg = '%s: Triggered sync and motion of %f (rad) relative to expected of %f' % (joint,abs(log['sync_x1'] - log['sync_x2']), xd)
         print(msg)
         self.assertTrue(error < error_thresh, msg=msg)  # Within error_thresh radians

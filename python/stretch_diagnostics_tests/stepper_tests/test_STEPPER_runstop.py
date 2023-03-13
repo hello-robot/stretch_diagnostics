@@ -44,7 +44,7 @@ class Test_STEPPER_runstop(unittest.TestCase):
         motor.pull_status()
         log['runstop_off_x1'] = motor.status['pos']
         self.test.log_data('test_runstop_'+joint, log)
-        error=abs(log['runstop_off_x1']-log['runstop_off_x0']-xd)
+        error=abs(abs(log['runstop_off_x1']-log['runstop_off_x0'])-xd)
         msg='%s: Runstop off and motion of %f (rad) relative to expected of %f'%(joint,abs(log['runstop_off_x1']-log['runstop_off_x0']),xd)
         print(msg)
         self.assertTrue(error<error_thresh,msg=msg) #Within error_thresh radians
