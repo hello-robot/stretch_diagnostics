@@ -22,7 +22,7 @@ parser.add_argument("--list", type=int, metavar='verbosity', choices=[1, 2], nar
                     help="Lists all the available TestSuites and its included TestCases Ordered (Default verbosity=1)",
                     const=1)
 parser.add_argument("--gist", type=str, metavar='gist ID', nargs='?',
-                    help="Run a MISC test from git gist content")
+                    help="Run a MISC test from git gist content e.g, --gist username/b85faad0d933cd1cbe98133bfaf37782")
 
 group = parser.add_mutually_exclusive_group()
 group.add_argument("--simple", help="Run simple diagnostics across entire robot", action="store_true")
