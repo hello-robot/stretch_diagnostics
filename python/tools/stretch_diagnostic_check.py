@@ -5,7 +5,7 @@ import argparse
 import stretch_body.hello_utils as hu
 from stretch_diagnostics.test_manager import TestManager
 from stretch_diagnostics.test_order import test_order
-from stretch_diagnostics.test_helpers import extract_zip, center_string
+from stretch_diagnostics.test_helpers import extract_zip, center_string, run_gist
 import click
 from colorama import Style
 
@@ -21,6 +21,8 @@ parser.add_argument("--unzip", type=str, metavar='zip file', nargs='?',
 parser.add_argument("--list", type=int, metavar='verbosity', choices=[1, 2], nargs='?',
                     help="Lists all the available TestSuites and its included TestCases Ordered (Default verbosity=1)",
                     const=1)
+parser.add_argument("--gist", type=str, metavar='gist ID', nargs='?',
+                    help="Run a MISC test from git gist content")
 
 group = parser.add_mutually_exclusive_group()
 group.add_argument("--simple", help="Run simple diagnostics across entire robot", action="store_true")
@@ -125,6 +127,11 @@ if args.report:
 if args.unzip:
     fn = str(args.unzip)
     unzip_print_test_status(zip_file=fn)
+
+if args.gist:
+    gist_id = str(args.gist)
+    run_gist(gist_id)
+
 
 if args.all:
     for t in test_order.keys():
