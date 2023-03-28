@@ -67,6 +67,18 @@ class Test_SIMPLE_capture_system(unittest.TestCase):
         print("Processor Version : %s" % (processor_version))
         self.test.log_data('system_info', driver_info)
 
+    def test_apt_disallowed_list(self):
+        """
+        Test disallowed apt packages not installed on system.
+        """
+        disallowed_apts = ['ros-noetic-respeaker-ros', 'ros-noetic-ros-speech-recognition']
+        # TODO - Binit
+
+    def test_pip_correct_versions(self):
+        """
+        """
+        correct_pip_versions = {'SpeechRecognition': '3.10.0', 'opencv-contrib-python': '3.7.0'}
+
 
 test_suite = TestSuite(test=Test_SIMPLE_capture_system.test, failfast=False)
 test_suite.addTest(Test_SIMPLE_capture_system('test_log_hardware_echo'))
