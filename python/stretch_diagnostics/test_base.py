@@ -63,6 +63,7 @@ class TestBase():
         with open(filename, 'w') as file:
             documents = yaml.dump(self.result_data_dict, file)
         print('Test data saved to : {}'.format(filename))
+        return filename
 
     def log_params(self, key, value):
         self.params_dict[key] = value
@@ -94,7 +95,7 @@ class TestBase():
         if ok:
             print(Fore.GREEN)
             print('All Test Cases passed')
-            self.save_test_result(test_status={'status': 'SUCCESS',
+            filename=self.save_test_result(test_status={'status': 'SUCCESS',
                                                'errors': len(errors),
                                                'failures': len(failures),
                                                'subtests_status': self.sub_tests_info})
@@ -105,10 +106,11 @@ class TestBase():
             self.log_errors(errors)
             self.log_fails(failures)
             print(Style.RESET_ALL)
-            self.save_test_result(test_status={'status': 'FAIL',
+            filename=self.save_test_result(test_status={'status': 'FAIL',
                                                'errors': len(errors),
                                                'failures': len(failures),
                                                'subtests_status': self.sub_tests_info})
+        return filename
 
     def move_misc_file(self, file_key, filename):
         ff = filename.split('.')

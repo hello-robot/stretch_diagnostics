@@ -13,7 +13,7 @@ from threading import Thread, Lock
 import zipfile
 import matplotlib.pyplot as plt
 from drawnow import drawnow
-
+from stretch_diagnostics.test_runner import TestRunner
 
 class Dmesg_monitor:
     """
@@ -358,7 +358,14 @@ def center_string(text, length=75, ch=' '):
 def run_gist(gist_id):
     cmd = f"wget https://gist.githubusercontent.com/{gist_id}/raw/ --no-check-certificate"
     os.system(cmd)
-    os.system("mv index.html misc_test.py")
-    os.system("python3 misc_test.py")
-    time.sleep(1)
-    os.system("rm misc_test.py")
+    os.system("mv index.html /tmp/misc_test.py")
+    import sys
+    sys.path.append('/tmp')
+    import misc_test
+    runner=TestRunner(misc_test.test_suite)
+    runner.run()
+    if runner.test_result_filename is not None:
+        print(Fore.BLUE + 'GIST test complete.\n Results: %s \nSend results to support@hello-robot.com'%runner.test_result_filename)
+    else:
+        print(Fore.YELLOW + 'GIST test failed to generate results data')
+    os.system("rm /tmp/misc_test.py")

@@ -48,9 +48,10 @@ class TestRunner(unittest.TextTestRunner):
             else:
                 sub_tests_info[t.id().split('.')[2]] = {'description': None, 'status': 'PASS'}
         result = super(TestRunner, self).run(self.suite)
+        self.test_result_filename=None
         if self.suite.test:
             self.suite.test.sub_tests_info = sub_tests_info
-            self.suite.test.save_TestResult(result)
+            self.test_result_filename=self.suite.test.save_TestResult(result)
         else:
             print(
                 Fore.YELLOW + '[WARNING]: Result Data not saved because Test Object was not included with Test Suite.')
