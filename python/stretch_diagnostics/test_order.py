@@ -34,6 +34,7 @@ test_order= {
         'test_ROS_urdf'
         ],
     'dynamixel':[
+        'test_DYNAMIXEL_hardware',
         'test_DYNAMIXEL_measure_efforts',
         'test_DYNAMIXEL_measure_range_of_motion',
         'test_DYNAMIXEL_check_zero_position'
