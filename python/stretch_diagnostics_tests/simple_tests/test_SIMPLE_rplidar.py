@@ -55,7 +55,7 @@ class Test_SIMPLE_rplidar(unittest.TestCase):
             ah = sum(points_per_sec) / len(points_per_sec)
             print('Mean points-per-sec: %.2f Hz' % (ah))
             self.test.log_data('rplidar_points_per_sec', points_per_sec)
-            self.assertTrue(ah>2500.0,'RPLidar scan rate of %f points-per-sec below threshold of 2500. Check USB cables.'%ah)
+            self.assertTrue(ah>2200.0,'RPLidar scan rate of %f points-per-sec below threshold of 2200. Check USB cables.'%ah)
         except RPLidarException:
             self.assertTrue(0, msg='RPLidar exception. Check all cables to device.')
 

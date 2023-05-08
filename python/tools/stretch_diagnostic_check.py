@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python
 import os.path
 import sys
 import argparse
@@ -25,6 +25,7 @@ parser.add_argument("--gist", type=str, metavar='gist ID', nargs='?',
                     help="Run a MISC test from git gist content e.g, --gist username/b85faad0d933cd1cbe98133bfaf37782")
 
 group = parser.add_mutually_exclusive_group()
+group.add_argument('--single', nargs=1, type=str, help='Run a single test. Eg --single test_SIMPLE_rplidar')
 group.add_argument("--simple", help="Run simple diagnostics across entire robot", action="store_true")
 group.add_argument("--power", help="Run diagnostics on the power subsystem", action="store_true")
 group.add_argument("--realsense", help="Run diagnostics on the Intel RealSense D435 camera", action="store_true")
@@ -131,6 +132,11 @@ if args.unzip:
 if args.gist:
     gist_id = str(args.gist)
     run_gist(gist_id)
+
+if args.single:
+    test_type=args.single[0][5:5+args.single[0][5:].find('_')].lower()
+    mgmt = TestManager(test_type=test_type)
+    mgmt.run_single(args.single[0])
 
 
 if args.all:

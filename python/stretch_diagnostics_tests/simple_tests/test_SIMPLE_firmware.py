@@ -15,7 +15,7 @@ class Test_SIMPLE_firmware(unittest.TestCase):
     test = TestBase('test_SIMPLE_firmware')
     use_device = {'hello-motor-arm': True, 'hello-motor-right-wheel': True, 'hello-motor-left-wheel': True,
                 'hello-pimu': True, 'hello-wacc': True, 'hello-motor-lift': True}
-    r = firmware_updater.RecommendedFirmware(use_device)
+    r = firmware_updater.FirmwareRecommended(use_device)
     
     def test_firmware_log_versions(self):
         """
