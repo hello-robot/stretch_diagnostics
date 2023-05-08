@@ -30,6 +30,9 @@ class TestManager():
 
         results_directory = os.environ['HELLO_FLEET_PATH'] + '/log/diagnostic_check'
         self.test_timestamp = hu.create_time_string()
+        if not test_type in test_order:
+            print('Test type %s not found. Exiting.'%test_type)
+            exit(0)
         self.tests_order = test_order[test_type]
         self.DiagnosticCheck_filename = 'diagnostic_check_%s_%s_%s.yaml' % (
             self.test_type, self.fleet_id, self.test_timestamp)
@@ -142,6 +145,15 @@ class TestManager():
     def run_suite(self):
         for t in self.tests_order:
             self.run_test(t)
+
+    def run_single(self,test_name):
+        if not test_name in self.tests_order:
+            print('Test %s not found. Exiting')
+            exit(0)
+        print('Running test: %s' % test_name)
+        print('')
+        self.run_test(test_name)
+        print('########### TEST COMPLETE ##########\n')
 
     def run_menu(self, show_subtests=False):
         while True:
