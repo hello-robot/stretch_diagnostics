@@ -25,7 +25,8 @@ test_order= {
         ],
     'power':[
         'test_POWER_charger',
-        'test_POWER_battery_loading'
+        'test_POWER_battery_loading',
+        'test_POWER_battery_health'
         ],
     'cpu':['test_CPU_usage_temp'],
     'ros':[
