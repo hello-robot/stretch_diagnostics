@@ -86,7 +86,6 @@ class Test_POWER_battery_health(unittest.TestCase):
         timeout_cnt = 0
         timeout = 65
         p = Pimu()
-        p.startup()
         self.assertTrue(p.startup(), 'Failed to startup Pimu')
 
         print('Running Battery Health Tool, will take about 1 minute')
@@ -98,8 +97,7 @@ class Test_POWER_battery_health(unittest.TestCase):
                     # print(msg)
 
                     if timeout_cnt > 65:
-                        timeoutmsg = ('TIMEOUT ERROR: Could not grab accurate voltage readings\n'
-                                      'Please try running the script again')
+                        timeoutmsg = ('TIMEOUT ERROR: Could not grab accurate voltage readings, please try running the script again')
                         self.kill_stress()
                         self.assertTrue(timeout < 65, timeoutmsg)
                         break
@@ -108,9 +106,10 @@ class Test_POWER_battery_health(unittest.TestCase):
                     if p.status['current'] < 1.6 and len(baseline_reading) <= sample:
                         baseline_reading['voltage'].append(p.status['voltage'])
                         baseline_reading['current'].append(p.status['current'])
-                        if p.status['voltage'] < 12.2:
-                            print('Battery was not fully charged')
-                            break
+
+                        #Checks to see if battery voltage is greater than 12.2
+                        self.assertLess(12.2,p.status['voltage'], 'Battery was not fully charged')
+
                         if len(baseline_reading['voltage']) == sample:
                             timeout = 0
                             print('Baseline reading done')
@@ -148,12 +147,10 @@ class Test_POWER_battery_health(unittest.TestCase):
                             if voltage_drop <= 0.5:
                                 health = ("Batteries are in Great Health")
                             elif 0.5 < voltage_drop <= 0.75:
-                                health = ('Batteries are in ok health..they are not as good as brand new\n'
-                                          'but, they should meet expected run times.'
+                                health = ('Batteries are in ok health..they are not as good as brand new but, they should meet expected run times'
                                           'You can run a repair cycle to improve battery perfomance')
                             else:
-                                health = ('Batteries are not in good health!!\n'
-                                          'Recommended to run repair cycle on batteries')
+                                health = ('Batteries are not in good health!! Recommended to run repair cycle on batteries')
                             if health is not None:
                                 print(health)
                                 self.test.log_data("battery_health", health)
