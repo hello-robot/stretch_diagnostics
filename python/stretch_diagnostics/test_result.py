@@ -1,5 +1,6 @@
 import unittest
 from colorama import Fore, Style
+import sys
 
 class TestResult(unittest.runner.TextTestResult):
     def startTest(self, test):
@@ -16,7 +17,8 @@ class TestResult(unittest.runner.TextTestResult):
     def stopTest(self, test):
         super(TestResult, self).stopTest(test)
         result = test.defaultTestResult()
-        test._feedErrorsToResult(result, test._outcome.errors)
+        if sys.version_info.minor < 10:
+            test._feedErrorsToResult(result, test._outcome.errors)
         ok = result.wasSuccessful()
         errors = result.errors
         failures = result.failures

@@ -46,7 +46,7 @@ class Test_SIMPLE_software_packages(unittest.TestCase):
         self.assertTrue(check_internet(), " Robot not connected to the Internet. Connect the robot")
 
     def check_if_latest(self, pkg_name):
-        ubuntu_to_pip_mapping = {'18.04': 'pip2', '20.04': 'pip3'}
+        ubuntu_to_pip_mapping = {'18.04': 'pip2', '20.04': 'pip3', '22.04': 'pip3'}
         pip_str = ubuntu_to_pip_mapping[distro.version()]
 
         installed_version = get_installed_package_versions(pkg_name)

@@ -15,7 +15,7 @@ package_data = {'stretch_diagnostics_tests': stretch_diagnostics_tests_dir_list}
 
 setuptools.setup(
     name="hello_robot_stretch_diagnostics",
-    version="0.0.13",
+    version="0.0.14",
     author="Hello Robot Inc.",
     author_email="support@hello-robot.com",
     description="Stretch Diagnostics",
