@@ -1,5 +1,7 @@
-![](./docs/images/banner.png)
-# Overview 
+# Deprecation Notice
+This repo is has been replaced by CLIs in [Stretch Body](https://github.com/hello-robot/stretch_body) (the low level interface for the Stretch robots). In particular, the `stretch_system_check.py` CLI is the recommended starting point for confirming that all subsystems are healthy. The original README is preserved below:
+
+## Overview 
 #### The Stretch Diagnostics package provides tools to run different suites of tests on the stretch robot to debug issues.
 
 > **Note**
